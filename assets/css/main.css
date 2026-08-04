@@ -1118,3 +1118,6 @@ body:not(.entered) #gxcard{
 .vcard.playing .vplay{opacity:0;pointer-events:none}
 .vcap{padding:.95rem 1.05rem;font-family:var(--f-en),inherit;font-size:.82rem;letter-spacing:.05em;color:var(--tx)}
 .vcap b{color:var(--rose);font-weight:600;font-family:var(--f-zh),inherit;margin-right:.45em}
+
+/* 图片加载失败兜底：优雅降级，不破版 */
+.img-broken{opacity:.32;filter:grayscale(.7);background:linear-gradient(135deg,#3a2540,#5a2d4a);}
