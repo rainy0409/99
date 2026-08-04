@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>影像收藏 · 致下雨天</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff6f8d' d='M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z'/%3E%3C/svg%3E">
+</head>
+<body class="locked" data-gallery="1" data-fx="aurora stars" data-hue="0.55">
+
+<div id="loader">
+  <svg class="ld-heart" viewBox="0 0 32 32"><path d="M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z"/></svg>
+  <div class="ld-txt">Gallery</div>
+  <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+  <div class="ld-pct" id="ldPct">0%</div>
+</div>
+
+<header class="phero">
+  <div class="atmo a2"></div>
+  <div class="wrap">
+    <span class="en-label">Gallery · Memory Galaxy</span>
+    <h1 class="grad">影像收藏</h1>
+    <p class="lead">每一张，都是我偷偷珍藏的心动瞬间。</p>
+    <div class="rule"></div>
+  </div>
+</header>
+
+<section style="padding-top:1rem">
+  <div class="wrap">
+    <p class="g-intro">在雨里，回忆汇成一条星河 —— 拨开它们，搅动整片银河，或捡起一张慢慢看。</p>
+  </div>
+
+  <!-- 记忆星河：物理轨道 + 星座连线 + 光标搅动（与首页 3D 宇宙完全区分） -->
+  <div id="field" class="field" aria-label="记忆星河"></div>
+  <p class="field-hint">移动光标拨开 · 拖动星体抛起 · 拖空白处搅动银河 · 点击展开</p>
+</section>
+
+<!-- 动态影像：会动的记忆（懒加载首帧作封面 · 点击播放 · 单视频独占 · 与全站玻璃质感统一） -->
+<section>
+  <div class="wrap">
+    <span class="en-label">Moving Memories · 动态影像</span>
+    <h2 class="grad">会动的瞬间</h2>
+    <p class="lead">有些心动，照片装不下 —— 让画面替我们说话。</p>
+    <div class="rule"></div>
+    <div class="vgrid">
+      <figure class="vcard" data-cur>
+        <div class="vwrap">
+          <video class="vid" src="assets/video/moment-1.mp4" preload="metadata" playsinline></video>
+          <button class="vplay" type="button" aria-label="播放视频"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        </div>
+        <figcaption class="vcap"><b>01</b>雨天的我们</figcaption>
+      </figure>
+      <figure class="vcard" data-cur>
+        <div class="vwrap">
+          <video class="vid" src="assets/video/moment-2.mp4" preload="metadata" playsinline></video>
+          <button class="vplay" type="button" aria-label="播放视频"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        </div>
+        <figcaption class="vcap"><b>02</b>在一起的时刻</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="tight">
+  <div class="atmo a3"></div>
+  <div class="wrap">
+    <div class="pull rv">
+      <p>照片会旧，<br><b>但那天的心跳不会。</b></p>
+      <div class="who">Our Moments · One Girl</div>
+      <div style="margin-top:2.4rem;display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap">
+        <a class="btn solid" href="days.html" data-cur data-mag><span>看看纪念日</span></a>
+        <a class="btn" href="story.html" data-cur><span>回到故事</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GSAP Flip 放大灯箱（照片从星河里飞出 → 居中定格 → 飞回；支持滚轮缩放 / 双击放大 / 拖拽平移） -->
+<div id="flb">
+  <button class="x" data-cur aria-label="关闭"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="flb-tip" id="flbTip">滚轮缩放 · 双击放大 · 拖拽平移</div>
+  <img id="flbImg" src="" alt="">
+  <div class="flb-cap" id="flbCap"></div>
+</div>
+
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/Flip.min.js" defer></script>
+<script src="assets/vendor/three.min.js" defer></script>
+<script src="assets/js/space3d.js" defer></script>
+<script src="assets/js/core.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var P = window.SITE.PHOTOS;
+  var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var TOUCH = matchMedia('(hover: none)').matches;
+  var field = document.getElementById('field');
+  var flb = document.getElementById('flb');
+  var flbImg = document.getElementById('flbImg');
+  var flbCap = document.getElementById('flbCap');
+
+  /* 星座画布（位于卡片之下，绘制连线 + 银河核心辉光） */
+  var canvas = document.createElement('canvas');
+  canvas.id = 'constel';
+  field.appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+
+  var items = [], byEl = new Map();
+  var dragItem = null, moved = false, LX = -9999, LY = -9999;
+  var dragOffX = 0, dragOffY = 0;
+  var curIt = null;
+  var zoom = 1, panX = 0, panY = 0, zpan = false, zlx = 0, zly = 0, flbTip = document.getElementById('flbTip');
+  var FW = 0, FH = 0, CX = 0, CY = 0;
+  var spin = 0, spinVel = 0;
+  var stir = { on: false, last: 0 };
+
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+  /* ── 构建记忆星体 ── */
+  P.forEach(function (p, i) {
+    var el = document.createElement('figure');
+    el.className = 'mem';
+    el.setAttribute('data-cur', '');
+    el.innerHTML =
+      '<div class="paper"><span class="tape"></span>' +
+      '<img src="' + p[0] + '" alt="' + (p[1] || '') + '" decoding="async">' +
+      '<figcaption class="cap">' + (p[1] || '') + '</figcaption>' +
+      '<span class="no">No.' + String(i + 1).padStart(2, '0') + '</span></div>';
+    field.appendChild(el);
+    var it = {
+      el: el, cap: p[1] || '',
+      ph: Math.random() * Math.PI * 2,
+      baseRot: Math.random() * 10 - 5,
+      baseAng: i * 2.399963,
+      rad: 0, jr: Math.random(), ja: Math.random() * Math.PI * 2,
+      vr: 0, vx: 0, vy: 0, near: 0,
+      x: 0, y: 0, rx: 0, ry: 0, hw: 0, hh: 0, frozen: false
+    };
+    items.push(it);
+    byEl.set(el, it);
+  });
+
+  function layout() {
+    var r = field.getBoundingClientRect();
+    FW = r.width; FH = r.height;
+    CX = FW / 2; CY = FH / 2;
+    // 星座辉光是柔光层，1.5 DPR 已足够；移动端封 1.5 大幅降低每帧 canvas 重绘开销，拖拽更跟手
+    var dpr = Math.min(1.5, window.devicePixelRatio || 1);
+    canvas.width = Math.round(FW * dpr);
+    canvas.height = Math.round(FH * dpr);
+    canvas.style.width = FW + 'px';
+    canvas.style.height = FH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var N = items.length;
+    var maxR = Math.min(FW, FH) / 2 * 0.92;
+    items.forEach(function (it) {
+      it.rad = Math.sqrt((items.indexOf(it) + 0.5) / N) * maxR * (1 + (it.jr - 0.5) * 0.22);
+      it.hw = it.el.offsetWidth / 2;
+      it.hh = it.el.offsetHeight / 2;
+    });
+  }
+
+  layout();
+  items.forEach(function (it) {
+    it.x = CX + Math.cos(it.baseAng) * it.rad;
+    it.y = CY + Math.sin(it.baseAng) * it.rad;
+  });
+
+  /* ── 指针交互：拨开 / 抛起 / 搅动 / 点击 ── */
+  field.addEventListener('pointerdown', function (e) {
+    LX = e.clientX; LY = e.clientY;
+    var card = e.target.closest('.mem');
+    if (card) {
+      var it = byEl.get(card);
+      dragItem = it; it.vx = it.vy = 0; moved = false;
+      var r = card.getBoundingClientRect();
+      var fr = field.getBoundingClientRect();
+      it.x = (r.left + r.width / 2) - fr.left;
+      it.y = (r.top + r.height / 2) - fr.top;
+      dragOffX = e.clientX - (r.left + r.width / 2);
+      dragOffY = e.clientY - (r.top + r.height / 2);
+      try { card.setPointerCapture(e.pointerId); } catch (_) {}
+      card.classList.add('drag');
+    } else if (e.pointerType === 'mouse') {
+      stir.on = true;
+      var fr2 = field.getBoundingClientRect();
+      stir.last = Math.atan2(e.clientY - fr2.top - CY, e.clientX - fr2.left - CX);
+    }
+  });
+  field.addEventListener('pointermove', function (e) {
+    LX = e.clientX; LY = e.clientY;
+    if (dragItem) {
+      var fr = field.getBoundingClientRect();
+      var nx = (e.clientX - dragOffX) - fr.left;
+      var ny = (e.clientY - dragOffY) - fr.top;
+      if (Math.abs(nx - dragItem.x) + Math.abs(ny - dragItem.y) > 4) moved = true;
+      dragItem.vr = clamp((nx - dragItem.x) * 0.5, -20, 20);
+      dragItem.x = nx; dragItem.y = ny;
+    } else if (stir.on) {
+      var fr2 = field.getBoundingClientRect();
+      var a = Math.atan2(e.clientY - fr2.top - CY, e.clientX - fr2.left - CX);
+      var da = a - stir.last;
+      while (da > Math.PI) da -= Math.PI * 2;
+      while (da < -Math.PI) da += Math.PI * 2;
+      spinVel += da * 2.4;
+      stir.last = a;
+    }
+  });
+  function endDrag() {
+    if (dragItem) { dragItem.el.classList.remove('drag'); if (!moved) openFLB(dragItem); dragItem = null; }
+    stir.on = false;
+  }
+  field.addEventListener('pointerup', endDrag);
+  field.addEventListener('pointercancel', endDrag);
+
+  /* ── Flip 放大灯箱（更大尺寸 + 可缩放/平移） ── */
+  function updateTip() {
+    if (!flbTip) return;
+    flbTip.textContent = zoom > 1.02
+      ? ('已放大 ' + Math.round(zoom * 100) + '% · 双击复位')
+      : '滚轮缩放 · 双击放大 · 拖拽平移';
+  }
+  function applyZoom() {
+    flbImg.style.transform = 'scale(' + zoom + ') translate(' + panX + 'px,' + panY + 'px)';
+    updateTip();
+  }
+  function openFLB(it) {
+    if (!window.gsap || !window.Flip) { if (window.rdOpenLB) window.rdOpenLB(P, items.indexOf(it)); return; }
+    curIt = it; it.frozen = true; it.el.style.opacity = '0';
+    var img = it.el.querySelector('img');
+    var r = img.getBoundingClientRect();
+    flbImg.src = img.src;
+    flbCap.textContent = it.cap;
+    flb.classList.add('on');
+    document.body.classList.add('locked');
+    zoom = 1; panX = 0; panY = 0;
+    /* 按原图比例计算放大尺寸：桌面更宽更大，移动端贴近满屏 */
+    var maxW = Math.min(innerWidth * 0.92, 960), maxH = innerHeight * 0.84;
+    var nw = flbImg.naturalWidth || 0, nh = flbImg.naturalHeight || 0;
+    if (!nw) { var tmp = new Image(); tmp.src = img.src; nw = tmp.naturalWidth || 800; nh = tmp.naturalHeight || 1000; }
+    if (!nw) { nw = 800; nh = 1000; }
+    var ratio = nw / nh;
+    var tw = Math.min(maxW, maxH * ratio), th = tw / ratio;
+    gsap.set(flbImg, { position: 'fixed', left: r.left, top: r.top, width: r.width, height: r.height, marginLeft: 0, marginTop: 0, display: 'block', transform: 'scale(1)', x: 0, y: 0 });
+    var state = Flip.getState(flbImg);
+    gsap.set(flbImg, { left: (innerWidth - tw) / 2, top: (innerHeight - th) / 2, width: tw, height: th });
+    Flip.from(state, { duration: 0.6, ease: 'power3.inOut', absolute: true, onComplete: function () { flbImg.style.transform = 'scale(1)'; updateTip(); } });
+  }
+  function closeFLB() {
+    if (!curIt) { flb.classList.remove('on'); return; }
+    var it = curIt;
+    flbImg.style.transform = 'scale(1)'; zoom = 1; panX = 0; panY = 0;   // 先归位缩放，再飞回卡片
+    var img = it.el.querySelector('img');
+    var r = img.getBoundingClientRect();
+    var state = Flip.getState(flbImg);
+    gsap.set(flbImg, { left: r.left, top: r.top, width: r.width, height: r.height, marginLeft: 0, marginTop: 0 });
+    Flip.from(state, {
+      duration: 0.5, ease: 'power3.inOut', absolute: true,
+      onComplete: function () {
+        flb.classList.remove('on'); flbImg.style.display = 'none'; flbImg.style.transform = '';
+        var ang = it.baseAng + spin;
+        it.x = CX + Math.cos(ang) * it.rad;
+        it.y = CY + Math.sin(ang) * it.rad;
+        it.vx = it.vy = 0;
+        it.frozen = false; it.el.style.opacity = '';
+        document.body.classList.remove('locked'); curIt = null;
+      }
+    });
+  }
+  flb.addEventListener('click', function (e) {
+    if (e.target.closest('.x') || e.target === flb) closeFLB();
+  });
+  addEventListener('keydown', function (e) {
+    if (flb.classList.contains('on') && e.key === 'Escape') closeFLB();
+  });
+  /* 缩放 / 平移交互 */
+  flb.addEventListener('wheel', function (e) {
+    if (!flb.classList.contains('on')) return;
+    e.preventDefault();
+    zoom *= e.deltaY < 0 ? 1.12 : 0.89;
+    zoom = clamp(zoom, 0.6, 4);
+    applyZoom();
+  }, { passive: false });
+  flbImg.addEventListener('dblclick', function () { zoom = zoom > 1.02 ? 1 : 2; panX = 0; panY = 0; applyZoom(); });
+  flbImg.addEventListener('pointerdown', function (e) {
+    if (zoom <= 1.02) return;
+    zpan = true; zlx = e.clientX; zly = e.clientY;
+    try { flbImg.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  flbImg.addEventListener('pointermove', function (e) {
+    if (!zpan) return;
+    panX += e.clientX - zlx; panY += e.clientY - zly; zlx = e.clientX; zly = e.clientY;
+    applyZoom();
+  });
+  flbImg.addEventListener('pointerup', function () { zpan = false; });
+  flbImg.addEventListener('pointercancel', function () { zpan = false; });
+
+  /* ── 物理 + 星座循环 ── */
+  var R = 160, STR = 6.0, K = 0.016, DAMP = 0.86, D = 156;
+  var lastT = 0, baseSpin = 0.06;
+
+  function drawConstel(lvl, bass) {
+    ctx.clearRect(0, 0, FW, FH);
+    /* 银河核心辉光 */
+    var core = ctx.createRadialGradient(CX, CY, 0, CX, CY, Math.max(FW, FH) * 0.55);
+    var ca = 0.05 + lvl * 0.16;
+    core.addColorStop(0, 'rgba(255,150,185,' + ca.toFixed(3) + ')');
+    core.addColorStop(0.4, 'rgba(157,123,255,' + (ca * 0.5).toFixed(3) + ')');
+    core.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = core;
+    ctx.fillRect(0, 0, FW, FH);
+    /* 星体节点辉光 */
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var g = ctx.createRadialGradient(it.rx, it.ry, 0, it.rx, it.ry, 34);
+      var ga = 0.10 + it.near * 0.5 + bass * 0.18;
+      g.addColorStop(0, 'rgba(255,200,220,' + ga.toFixed(3) + ')');
+      g.addColorStop(1, 'rgba(255,200,220,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(it.rx, it.ry, 34, 0, Math.PI * 2); ctx.fill();
+    }
+    /* 星座连线 */
+    ctx.lineCap = 'round';
+    for (var a = 0; a < items.length; a++) {
+      for (var b = a + 1; b < items.length; b++) {
+        var dx = items[a].rx - items[b].rx, dy = items[a].ry - items[b].ry;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < D * D) {
+          var d = Math.sqrt(d2);
+          var al = (1 - d / D);
+          ctx.strokeStyle = 'rgba(255,160,190,' + (al * al * 0.34 * (1 + bass * 1.4)).toFixed(3) + ')';
+          ctx.lineWidth = al * 1.5;
+          ctx.beginPath();
+          ctx.moveTo(items[a].rx, items[a].ry);
+          ctx.lineTo(items[b].rx, items[b].ry);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function frame(now) {
+    var dt = lastT ? Math.min(0.05, (now - lastT) / 1000) : 0.016;
+    lastT = now;
+    var t = now / 1000;
+    var B = window.RD_BEAT;
+    var lvl = (B && B.on) ? B.level : 0;
+    var bass = (B && B.on) ? B.bass : 0;
+    var breath = 1 + lvl * 0.06;
+    var fr = field.getBoundingClientRect();
+    var px = LX - fr.left, py = LY - fr.top;
+    var hasPointer = LX > -9000;
+
+    spin += (baseSpin * (1 + lvl * 1.3) + spinVel) * dt;
+    spinVel *= 0.94;
+
+    var aspect = FW / Math.max(1, FH);
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      if (it.frozen) continue;
+      if (it !== dragItem) {
+        var ang = it.baseAng + spin;
+        var hx = CX + Math.cos(ang) * it.rad * (0.55 + aspect * 0.45);
+        var hy = CY + Math.sin(ang) * it.rad;
+        var ax = (hx - it.x) * K;
+        var ay = (hy - it.y) * K;
+        if (hasPointer) {
+          var ddx = it.x - px, ddy = it.y - py;
+          var dd2 = ddx * ddx + ddy * ddy;
+          if (dd2 < R * R && dd2 > 0.01) {
+            var d = Math.sqrt(dd2);
+            var f = 1 - d / R;
+            var push = f * f * STR;
+            ax += (ddx / d) * push;
+            ay += (ddy / d) * push;
+            it.near = f;
+          } else it.near = 0;
+        } else it.near = 0;
+        it.vx = (it.vx + ax) * DAMP;
+        it.vy = (it.vy + ay) * DAMP;
+        it.x += it.vx;
+        it.y += it.vy;
+      }
+      it.vr *= 0.92;
+      var bob = Math.sin(t * 0.55 + it.ph) * 3;
+      var sway = Math.sin(t * 0.12 + it.ph) * 5;
+      var rot = it.baseRot + Math.sin(t * 0.3 + it.ph) * 2 + it.vr;
+      var sc = breath * (1 + it.near * 0.14);
+      var rx = it.x + sway, ry = it.y + bob;
+      it.rx = rx; it.ry = ry;
+      it.el.style.transform = 'translate3d(' + (rx - it.hw) + 'px,' + (ry - it.hh) + 'px,0) rotate(' + rot.toFixed(2) + 'deg) scale(' + sc.toFixed(3) + ')';
+      if (it.near > 0.12) it.el.classList.add('near'); else it.el.classList.remove('near');
+    }
+    drawConstel(lvl, bass);
+    requestAnimationFrame(frame);
+  }
+
+  if (REDUCED) {
+    items.forEach(function (it) {
+      it.rx = it.x; it.ry = it.y;
+      it.el.style.transform = 'translate3d(' + (it.x - it.hw) + 'px,' + (it.y - it.hh) + 'px,0) rotate(' + it.baseRot + 'deg)';
+    });
+    drawConstel(0, 0);
+  } else {
+    requestAnimationFrame(frame);
+  }
+
+  var rt;
+  addEventListener('resize', function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { layout(); }, 160);
+  });
+});
+
+/* 动态影像播放交互（独立监听器，不改动上方星河逻辑）：点击播放、单视频独占、播放时显原生控件 */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.vcard').forEach(function (card) {
+    var v = card.querySelector('.vid');
+    var btn = card.querySelector('.vplay');
+    if (!v) return;
+    function play() {
+      document.querySelectorAll('.vcard .vid').forEach(function (o) { if (o !== v) o.pause(); });
+      v.controls = true;
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+      card.classList.add('playing');
+    }
+    btn.addEventListener('click', play);
+    v.addEventListener('click', function () { if (v.paused) play(); });
+    v.addEventListener('pause', function () { if (v.currentTime > 0 && !v.ended) card.classList.remove('playing'); });
+    v.addEventListener('ended', function () { card.classList.remove('playing'); v.controls = false; });
+  });
+});
+</script>
+</body>
+</html>

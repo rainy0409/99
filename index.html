@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>致下雨天 · 我 ♡ 肖雨童</title>
+<meta name="description" content="写给肖雨童的一本书 —— 我们的故事、影像、纪念日与余生，藏在可探索的 3D 宇宙里。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff6f8d' d='M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z'/%3E%3C/svg%3E">
+</head>
+<body class="locked" data-explore="1" data-fx="aurora rain stars heart">
+
+<div id="loader">
+  <svg class="ld-heart" viewBox="0 0 32 32"><path d="M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z"/></svg>
+  <div class="ld-txt">To The Rainy Day</div>
+  <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+  <div class="ld-pct" id="ldPct">0%</div>
+</div>
+
+<!-- ════════ 入场门：标题 + 唯一按钮，点击飞入 3D 宇宙 ════════ -->
+<header class="hero-overlay" id="enterGate">
+  <div class="gate-card">
+    <div class="eyebrow"><span></span>Prologue · 序<span></span></div>
+    <h1 class="h-title" id="hTitle">致下雨天</h1>
+    <div class="h-sub">
+      <span>我</span>
+      <svg viewBox="0 0 32 32"><path d="M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z" fill="#ff6f8d"/></svg>
+      <span>肖雨童</span>
+    </div>
+    <div class="since">Since 2026.05.05 · 已相伴 <b id="tD">0</b> 天</div>
+    <button class="btn solid enter-btn" id="enterUniverse" data-mag data-cur>
+      <span>✦ 进入我们的宇宙</span>
+    </button>
+    <p class="gate-hint">点亮星河，开始我们的旅程</p>
+  </div>
+</header>
+
+<!-- ════════ 星河漫游（可点内容对象 · 图例/操作） ════════ -->
+<aside class="roam-panel" id="roamPanel" aria-label="星河漫游">
+  <button class="rp-toggle" id="rpToggle" aria-expanded="true" aria-label="收起星河漫游面板">✦</button>
+  <div class="rp-top">
+    <span class="rp-title">Galaxy Drift · 星河漫游</span>
+  </div>
+  <div class="rp-body">
+    <div class="gd-legend" role="list" aria-label="星点图例">
+      <span class="lg photo" role="listitem"><i></i>照片 · 合影</span>
+      <span class="lg line"  role="listitem"><i></i>情话 · 一句话</span>
+      <span class="lg mile"  role="listitem"><i></i>里程碑 · 纪念日</span>
+      <span class="lg portal" role="listitem"><i></i>传送门 · 进入分册</span>
+    </div>
+    <p class="gd-roam">✦ 拖动旋转星空　✦ 双击回正　✦ 滚轮缩放　✦ 点击星体看故事</p>
+  </div>
+</aside>
+
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/three.min.js" defer></script>
+<script src="assets/js/space3d.js" defer></script>
+<script src="assets/js/core.js" defer></script>
+<script src="assets/js/galaxy.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var title = document.getElementById('hTitle');
+  if (window.rdSplit) rdSplit(title);
+  setTimeout(function () { title && title.classList.add('go'); }, 260);
+  if (window.rdClock) {
+    window.rdClock({ d: document.getElementById('tD'), h: document.getElementById('tH'), m: document.getElementById('tM'), s: document.getElementById('tS') });
+  }
+});
+</script>
+</body>
+</html>

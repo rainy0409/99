@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>那封信 · 致下雨天</title>
+<meta name="description" content="致 我的下雨天 —— 余生很长，请多多指教。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff6f8d' d='M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z'/%3E%3C/svg%3E">
+<style>
+  /* ── 本页专属：信纸尘埃 / 启封 / 门控 ── */
+  .letterstage{position:relative;z-index:2}
+  #dust{position:absolute;inset:-6% -2%;width:104%;height:112%;
+    pointer-events:none;z-index:1;opacity:.9}
+  .flip{cursor:pointer;position:relative;z-index:3}
+  .flip .face.front{box-shadow:0 30px 90px -40px rgba(255,111,141,.55)}
+  .flip .face.front::after{content:'';position:absolute;inset:14px;border-radius:11px;
+    border:1px dashed color-mix(in srgb,var(--rose) 42%,transparent);pointer-events:none}
+  .flip .hint{font-size:var(--fs-xs);letter-spacing:.3em;color:var(--tx-3);
+    animation:hintb 2.8s ease-in-out infinite}
+  @keyframes hintb{0%,100%{opacity:.4}50%{opacity:1}}
+  .flip.open .hint{opacity:0}
+  .flip::before{content:'';position:absolute;inset:-14%;border-radius:26px;z-index:-1;
+    background:radial-gradient(circle at 50% 50%,
+      color-mix(in srgb,var(--rose) 26%,transparent),transparent 68%);
+    filter:blur(34px);opacity:.5;transition:opacity .8s}
+  .flip.open::before{opacity:1}
+
+  .opennote{margin-top:.2rem;font-size:var(--fs-xs);letter-spacing:.28em;color:var(--tx-3);
+    transition:opacity .5s}
+  .opennote.hide{opacity:0}
+
+  .gate{display:none}
+  .gate.un{display:block;animation:gateIn 1.1s var(--ease) both}
+  @keyframes gateIn{from{opacity:0;transform:translateY(46px)}to{opacity:1;transform:none}}
+
+  /* 逐句浮现的信文 */
+  .vt p{opacity:0;transform:translateY(22px);
+    transition:opacity .9s var(--ease),transform .9s var(--ease),border-color .5s,color .5s}
+  .vt p.up{opacity:1;transform:none}
+  .vt p .lead-cap{color:var(--rose);font-weight:600}
+
+  /* 落款印章 */
+  .stamp{margin:var(--sp-4) auto 0;width:104px;height:104px;border-radius:50%;
+    display:grid;place-items:center;text-align:center;line-height:1.45;
+    border:1px solid color-mix(in srgb,var(--rose) 55%,transparent);
+    color:var(--rose);font-size:.66rem;letter-spacing:.18em;
+    transform:rotate(-9deg);opacity:.85;
+    box-shadow:0 0 0 5px color-mix(in srgb,var(--rose) 8%,transparent)}
+
+  /* 求婚区 */
+  .pa{align-items:center}
+  .yn.no{position:relative;transition:transform .45s var(--ease),opacity .4s,color .3s}
+  .after{display:none;margin-top:2.2rem}
+  .after.on{display:block;animation:gateIn .9s var(--ease) both}
+  .after .big{font-family:var(--f-en);font-size:clamp(2rem,6vw,3.6rem);
+    letter-spacing:.1em;
+    background:linear-gradient(100deg,var(--rose),var(--gold),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .after .sm{margin-top:1rem;color:var(--tx-2);font-size:var(--fs-md);line-height:2.1}
+  .lockchip{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.6rem;
+    padding:.5rem 1.1rem;border-radius:999px;border:1px solid var(--line);
+    font-size:var(--fs-xs);letter-spacing:.16em;color:var(--tx-3)}
+  .lockchip b{color:var(--rose);font-family:var(--f-en);font-size:.9rem}
+</style>
+</head>
+<body class="locked" data-fx="aurora rain stars" data-hue="0.92">
+
+<div id="loader">
+  <svg class="ld-heart" viewBox="0 0 32 32"><path d="M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z"/></svg>
+  <div class="ld-txt">A Letter For You</div>
+  <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+  <div class="ld-pct" id="ldPct">0%</div>
+</div>
+
+<header class="phero">
+  <div class="atmo a1"></div>
+  <div class="wrap">
+    <span class="en-label">The Last Chapter</span>
+    <h1 class="grad">那封信</h1>
+    <p class="lead">有些话写在纸上比说出口更勇敢一点。<br>这封信我改了很多遍，现在交给你。</p>
+    <div class="rule"></div>
+  </div>
+</header>
+
+<!-- ═══ 启封 ═══ -->
+<section class="tight letterstage">
+  <div class="atmo a2"></div>
+  <canvas id="dust"></canvas>
+  <div class="wrap">
+    <div class="askwrap">
+      <div class="flip rv" id="flip" data-cur role="button" tabindex="0" aria-label="打开信封">
+        <div class="flip-in">
+          <div class="face front">
+            <div class="seal">
+              <svg viewBox="0 0 32 32" width="26" height="26" fill="currentColor"><path d="M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z"/></svg>
+            </div>
+            <div class="ft">To My Rainy Day</div>
+            <div class="hint">轻 触 启 封</div>
+          </div>
+          <div class="face back">
+            <div class="bt-t">致 我的下雨天</div>
+            <div class="bt-b">这封信我写了很久很久<br>从你还不知道我喜欢你的时候</div>
+            <div class="bt-s">FROM ME · TO YOU</div>
+          </div>
+        </div>
+      </div>
+      <div class="opennote" id="openNote">点 一 下 那 封 信</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 信文（启封后浮现） ═══ -->
+<section class="gate" id="vowSec">
+  <div class="atmo a3"></div>
+  <div class="wrap">
+    <div class="sh rv">
+      <div class="idx">05</div>
+      <div class="en">Chapter Five · To Be Continued</div>
+      <h2>未完待续</h2>
+      <div class="rule"></div>
+      <p>这一章我写了很多遍，最后决定就这么原原本本地给你</p>
+    </div>
+
+    <div class="vt" id="vt">
+      <p><span class="lead-cap">嘻嘻，</span>我要跟你在一起很久很久很久，一起旅游，一起看日出，一起看海，一起看潮起潮落，一起过 999，一起过无数个 520，过很多很多的春节～<b>岁岁年年跟你在一起～</b></p>
+      <p>从前车马很慢，一生只够爱一个人；现在尽管是快节奏时代，<b>此生爱你一人足矣</b>。手机的便利使得即使我俩远隔，也能随时听到对方的声音～</p>
+      <p>我是一个健忘的人，我根本记不住朋友的生日，经常忘记很多事，<b>但我愿意记住你的喜好、你的点点滴滴。</b></p>
+      <p>我会从每个小细节做起，好好爱你，你跟我说的我也在慢慢记，慢慢改～</p>
+      <p>我是一个焦虑型恋人，有一个原因是我有时候觉得我是否配得上如此优秀的你，所以我会不安，多多见谅啦嘻嘻。</p>
+      <p>希望你能开心一点，轻松一点，不要那么累了，每次真的好心疼你，<b>希望你成为无忧无虑的小女孩</b>嘻嘻～你已经很厉害啦宝宝！有事一定要告诉我哦，不要自己憋着嘿嘿。</p>
+      <p style="border-color:var(--rose);color:var(--tx);font-size:var(--fs-h3);line-height:2">余生很长，<b>请多多指教！</b></p>
+    </div>
+
+    <div class="stamp rv">2026<br>致下雨天<br>♥</div>
+  </div>
+</section>
+
+<!-- ═══ 再问一次 ═══ -->
+<section class="gate tight" id="askSec">
+  <div class="atmo a1"></div>
+  <div class="wrap">
+    <div class="sh rv">
+      <div class="idx">06</div>
+      <div class="en">2026.05.05 · Ask Again</div>
+      <h2>再问你一次</h2>
+      <div class="rule"></div>
+      <p>上一次问的时候，我脑子一片空白</p>
+    </div>
+
+    <div class="propose rv" style="margin-inline:auto">
+      <p class="pq">肖雨童，<br>下辈子、下下辈子，<br><b>还做我的下雨天，好不好？</b></p>
+      <div class="pa">
+        <button class="yn yes" id="yes" data-cur data-mag>好呀 ♥</button>
+        <button class="yn no" id="no" data-cur>让我想想</button>
+      </div>
+      <div class="pr" id="pr"></div>
+
+      <div class="after" id="after">
+        <div class="big">Forever &amp; Always</div>
+        <div class="sm">那我们就说好啦。<br>这一次不用等那么久，也不用再紧张到脑子一片空白。</div>
+        <div class="lockchip">已锁定 · <b id="lockDays">0</b> 天，还有往后余生</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 落款 ═══ -->
+<section class="gate" id="signSec">
+  <div class="atmo a2"></div>
+  <div class="wrap">
+    <div class="sign grad rv">To My Rainy Day</div>
+    <div class="sign-cn rv">致 我 的 下 雨 天</div>
+
+    <div class="pull rv" style="margin-top:var(--sp-5)">
+      <p>这本书写到这里，<br><b>后面的空白页，留给我们一起写。</b></p>
+      <div class="who">The End · And The Beginning</div>
+      <div style="margin-top:2.4rem;display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap">
+        <a class="btn solid" href="index.html" data-cur data-mag><span>回到扉页</span></a>
+        <a class="btn" href="story.html" data-cur><span>再读一遍故事</span></a>
+        <a class="btn" href="whisper.html" data-cur><span>说句悄悄话</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/three.min.js" defer></script>
+<script src="assets/js/space3d.js" defer></script>
+<script src="assets/js/core.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ───────── 1. 信纸尘埃粒子（本页专属） ───────── */
+  (function dust() {
+    var cv = document.getElementById('dust');
+    if (!cv || matchMedia('(prefers-reduced-motion: reduce)').matches) { if (cv) cv.style.display = 'none'; return; }
+    var c = cv.getContext('2d'), W = 0, H = 0, ps = [], glow = 0;
+    var COL = ['255,111,141', '245,197,107', '157,123,255', '255,255,255'];
+
+    function size() {
+      var r = cv.getBoundingClientRect();
+      W = cv.width = Math.max(1, r.width | 0);
+      H = cv.height = Math.max(1, r.height | 0);
+      ps = [];
+      var n = W < 700 ? 46 : 110;
+      for (var i = 0; i < n; i++) ps.push(mk(true));
+    }
+    function mk(init) {
+      return {
+        x: Math.random() * W,
+        y: init ? Math.random() * H : H + 12,
+        r: .6 + Math.random() * 2.1,
+        vy: -(.12 + Math.random() * .45),
+        vx: (Math.random() - .5) * .22,
+        ph: Math.random() * 6.28,
+        sp: .5 + Math.random() * 1.1,
+        col: COL[(Math.random() * COL.length) | 0]
+      };
+    }
+    size();
+    addEventListener('resize', size);
+
+    var vis = false;
+    new IntersectionObserver(function (es) { vis = es[0].isIntersecting; })
+      .observe(cv.parentNode);
+
+    window.rdDustGlow = function () { glow = 1; };
+
+    (function loop() {
+      requestAnimationFrame(loop);
+      if (!vis || document.hidden) return;
+      var t = performance.now() / 1000;
+      c.clearRect(0, 0, W, H);
+      if (glow > 0.001) {
+        var g = c.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * .5);
+        g.addColorStop(0, 'rgba(255,111,141,' + (glow * .22).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(255,111,141,0)');
+        c.fillStyle = g; c.fillRect(0, 0, W, H);
+        glow *= 0.972;
+      }
+      for (var i = 0; i < ps.length; i++) {
+        var p = ps[i];
+        p.y += p.vy * (1 + glow * 2.2);
+        p.x += p.vx + Math.sin(t * p.sp + p.ph) * .28;
+        var a = (0.22 + 0.5 * (0.5 + 0.5 * Math.sin(t * p.sp * 1.6 + p.ph))) * (0.5 + glow * .6);
+        c.beginPath();
+        c.fillStyle = 'rgba(' + p.col + ',' + a.toFixed(3) + ')';
+        c.arc(p.x, p.y, p.r, 0, 6.283);
+        c.fill();
+        if (p.y < -14) ps[i] = mk(false);
+      }
+    })();
+  })();
+
+  /* ───────── 2. 启封 ───────── */
+  var flip = document.getElementById('flip');
+  var note = document.getElementById('openNote');
+  var opened = false;
+
+  function openLetter() {
+    if (opened) return;
+    opened = true;
+    flip.classList.add('open');
+    note.classList.add('hide');
+
+    var r = flip.getBoundingClientRect();
+    if (window.rdSpark) rdSpark(r.left + r.width / 2, r.top + r.height / 2, 40);
+    if (window.rdDustGlow) rdDustGlow();
+
+    /* 1.2s 后逐段展开信文 */
+    setTimeout(function () {
+      ['vowSec', 'askSec', 'signSec'].forEach(function (id, i) {
+        setTimeout(function () {
+          document.getElementById(id).classList.add('un');
+        }, i * 220);
+      });
+      setTimeout(revealLines, 300);
+      setTimeout(function () {
+        var v = document.getElementById('vowSec');
+        scrollTo({ top: v.getBoundingClientRect().top + scrollY - 70, behavior: 'smooth' });
+      }, 420);
+    }, 1150);
+  }
+
+  flip.addEventListener('click', openLetter);
+  flip.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLetter(); }
+  });
+
+  /* ───────── 3. 信文逐句浮现 ───────── */
+  function revealLines() {
+    var ps = Array.prototype.slice.call(document.querySelectorAll('#vt p'));
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var el = en.target;
+        io.unobserve(el);
+        setTimeout(function () { el.classList.add('up'); }, ps.indexOf(el) % 3 * 140);
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -6% 0px' });
+    ps.forEach(function (p) { io.observe(p); });
+  }
+
+  /* ───────── 4. 再问一次 ───────── */
+  var yes = document.getElementById('yes'), no = document.getElementById('no');
+  var pr = document.getElementById('pr'), after = document.getElementById('after');
+  var dodge = 0;
+  var DODGE = [
+    '不许想 ⌒',
+    '再考虑一下下嘛',
+    '这个选项其实不存在',
+    '按错了吧 ？',
+    '好啦别按了 ♥'
+  ];
+
+  function flee() {
+    dodge++;
+    var dx = (Math.random() - .5) * 260;
+    var dy = (Math.random() - .5) * 90;
+    no.style.transform = 'translate(' + dx.toFixed(0) + 'px,' + dy.toFixed(0) + 'px)';
+    no.textContent = DODGE[Math.min(dodge - 1, DODGE.length - 1)];
+    if (dodge >= 5) { no.style.opacity = '.25'; no.style.pointerEvents = 'none'; }
+  }
+  no.addEventListener('mouseenter', flee);
+  no.addEventListener('click', function (e) { e.preventDefault(); flee(); });
+
+  yes.addEventListener('click', function (e) {
+    if (window.rdPetals) rdPetals(70);
+    var r = e.currentTarget.getBoundingClientRect();
+    if (window.rdSpark) rdSpark(r.left + r.width / 2, r.top + r.height / 2, 46);
+    pr.textContent = '就知道你会这么说 ♥';
+    pr.classList.add('on');
+    after.classList.add('on');
+    no.style.opacity = '0';
+    no.style.pointerEvents = 'none';
+    yes.textContent = '说好了哦 ♥';
+    setTimeout(function () { if (window.rdPetals) rdPetals(40); }, 1600);
+  });
+
+  /* ───────── 5. 锁定天数 ───────── */
+  var el = document.getElementById('lockDays');
+  if (el && window.SITE) {
+    el.textContent = SITE.daysTogether();
+  }
+});
+</script>
+</body>
+</html>

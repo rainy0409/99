@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>纪念日 · 致下雨天</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff6f8d' d='M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z'/%3E%3C/svg%3E">
+</head>
+<body class="locked" data-fx="aurora rain stars" data-hue="0.3">
+
+<div id="loader">
+  <svg class="ld-heart" viewBox="0 0 32 32"><path d="M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z"/></svg>
+  <div class="ld-txt">Anniversary</div>
+  <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+  <div class="ld-pct" id="ldPct">0%</div>
+</div>
+
+<header class="phero">
+  <div class="atmo a1"></div>
+  <div class="wrap">
+    <span class="en-label">Since 2026.05.05</span>
+    <h1 class="grad">纪念日</h1>
+    <p class="lead">把每一个值得纪念的日子，都数着过。</p>
+    <div class="rule"></div>
+  </div>
+</header>
+
+<!-- 恋爱进度环 -->
+<section class="tight">
+  <div class="wrap">
+    <div class="ring-wrap rv">
+      <div class="ring">
+        <svg viewBox="0 0 200 200">
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff6f8d"/><stop offset="55%" stop-color="#f5c56b"/>
+            <stop offset="100%" stop-color="#9d7bff"/>
+          </linearGradient></defs>
+          <circle class="trk" cx="100" cy="100" r="92"/>
+          <circle class="val" id="ringVal" cx="100" cy="100" r="92"/>
+        </svg>
+        <div class="mid"><b id="ringDay">0</b><span>DAYS TOGETHER</span></div>
+      </div>
+      <div style="text-align:center;color:var(--tx-2)">
+        距离我们的<b style="color:var(--rose)">一周年</b>还有
+        <b id="toYear" style="font-family:var(--f-en);font-size:1.35rem">—</b> 天
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 倒计时卡片 -->
+<section>
+  <div class="atmo a2"></div>
+  <div class="wrap">
+    <div class="sh rv">
+      <div class="idx">01</div>
+      <div class="en">Countdown</div>
+      <h2>正在赶来的日子</h2>
+      <div class="rule"></div>
+      <p>这些日子我都记着，一个都不会忘</p>
+    </div>
+    <div class="dg" id="dg"></div>
+  </div>
+</section>
+
+<!-- 里程碑 -->
+<section class="tight">
+  <div class="wrap">
+    <div class="sh rv">
+      <div class="idx">02</div>
+      <div class="en">Milestones</div>
+      <h2>已经走过的</h2>
+      <div class="rule"></div>
+      <p>回头看看，我们已经攒了这么多</p>
+    </div>
+    <div class="sg">
+      <div class="st rv"><div class="sv" id="mDays" data-to="0">0</div><div class="sl">天 在一起</div></div>
+      <div class="st rv"><div class="sv" id="mHours" data-to="0">0</div><div class="sl">小时 想着你</div></div>
+      <div class="st rv"><div class="sv" id="mWeeks" data-to="0">0</div><div class="sl">周 没分开过</div></div>
+      <div class="st rv"><div class="sv" id="mMoon" data-to="0">0</div><div class="sl">次 一起看月亮</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="tight">
+  <div class="hztl" data-timeline>
+    <div class="hz-head">
+      <div class="idx">03</div>
+      <div class="en">Our Journey</div>
+      <h2>沿着时间线，慢慢走</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="hz-track" id="hzTrack"></div>
+  </div>
+</section>
+
+<section class="tight">
+  <div class="atmo a3"></div>
+  <div class="wrap">
+    <div class="pull rv">
+      <p>一起过 999，<br>一起过无数个 520，<br><b>岁岁年年跟你在一起。</b></p>
+      <div class="who">Forever &amp; Always</div>
+      <div style="margin-top:2.4rem;display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap">
+        <a class="btn solid" href="whisper.html" data-cur data-mag><span>去写句悄悄话</span></a>
+        <a class="btn" href="letter.html" data-cur><span>那封信</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/three.min.js" defer></script>
+<script src="assets/js/space3d.js" defer></script>
+<script src="assets/js/core.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var START = window.SITE.START;
+  var NOW = new Date();
+  var DAY = 864e5;
+  // 「在一起第 N 天」统一走 core.js 的唯一真源（首日记为第 1 天）
+  var DTOG = window.SITE.daysTogether();
+
+  var IC = {
+    heart: '<path d="M12 20.5C4.8 15.3 2 11.4 2 8.6A4.6 4.6 0 0 1 12 5.4 4.6 4.6 0 0 1 22 8.6c0 2.8-2.8 6.7-10 11.9Z"/>',
+    star:  '<path d="M12 3.2l2.6 5.6 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.6l6-.8Z"/>',
+    cake:  '<path d="M4 20h16M5 20v-6.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2V20M12 11.5V8M12 5.2c.9-1 .3-2.2-.5-2.7.9.3 2 1.3 1.4 2.5"/>',
+    ring:  '<circle cx="12" cy="14.5" r="5.5"/><path d="M9.4 9.4L8 5h8l-1.4 4.4M12 5V2.6"/>',
+    moon:  '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
+    tree:  '<path d="M12 3l4.5 6h-3l4 5.5h-3.5L18 20H6l4-5.5H6.5l4-5.5h-3Z M12 20v2"/>',
+    sun:   '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M2 12h2.6M19.4 12H22M4.9 4.9l1.9 1.9M17.2 17.2l1.9 1.9M19.1 4.9l-1.9 1.9M6.8 17.2l-1.9 1.9"/>',
+    cam:   '<rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.6"/><path d="M8.5 7l1.2-2.2h4.6L15.5 7"/>',
+    gift:  '<path d="M20 6h-2.2A3 3 0 0 0 13 2.5 3 3 0 0 0 8.2 6H4v4h16V6zM4 12v8h7v-8H4zm9 0v8h7v-8h-7z"/>'
+  };
+
+  /* type: count = 已过天数；date = 固定日期；annual = 每年循环 */
+  var LIST = [
+    { ic: 'heart', t: '在一起',        en: 'Since 2026.05.05',  type: 'count' },
+    { ic: 'star',  t: '99 天纪念日',   en: '2026.08.12',        date: [2026, 7, 12] },
+    { ic: 'cam',   t: '第一次约会',    en: 'Every 05.17',       annual: [5, 17] },
+    { ic: 'sun',   t: '下一个 520',    en: 'I Love You',        annual: [5, 20] },
+    { ic: 'cake',  t: '我的生日',      en: 'Every 03.27',       annual: [3, 27] },
+    { ic: 'gift',  t: '她的生日',      en: 'Every 04.09',       annual: [4, 9] },
+    { ic: 'tree',  t: '我们的平安夜',  en: 'Christmas Eve',     annual: [12, 24] },
+    { ic: 'ring',  t: '一周年',        en: '2027.05.05',        date: [2027, 4, 5] },
+    { ic: 'moon',  t: '999 天之约',    en: '2029.01.28',        date: [2029, 0, 28] }
+  ];
+
+  function nextAnnual(m, d) {
+    var y = NOW.getFullYear();
+    var t = new Date(y, m - 1, d);
+    if (t < NOW) t = new Date(y + 1, m - 1, d);
+    return t;
+  }
+  function prevAnnual(m, d) {
+    var y = NOW.getFullYear();
+    var t = new Date(y, m - 1, d);
+    if (t > NOW) t = new Date(y - 1, m - 1, d);
+    return t;
+  }
+
+  var html = LIST.map(function (o) {
+    var big, unit, pct, past = false, sub = o.en;
+    if (o.type === 'count') {
+      big = DTOG;
+      unit = '天';
+      pct = 100;
+    } else {
+      var target, from;
+      if (o.annual) { target = nextAnnual(o.annual[0], o.annual[1]); from = prevAnnual(o.annual[0], o.annual[1]); }
+      else { target = new Date(o.date[0], o.date[1], o.date[2]); from = START; }
+      var left = Math.ceil((target - NOW) / DAY);
+      if (left <= 0) { past = true; big = Math.abs(left); unit = '天前已达成'; pct = 100; }
+      else {
+        big = left; unit = '天后';
+        var span = target - from;
+        pct = span > 0 ? Math.max(2, Math.min(100, (NOW - from) / span * 100)) : 0;
+      }
+      sub = o.en + ' · ' + target.getFullYear() + '.' +
+            String(target.getMonth() + 1).padStart(2, '0') + '.' +
+            String(target.getDate()).padStart(2, '0');
+    }
+    return '<div class="dc card rv' + (past ? ' past' : '') + '" data-tilt="6">' +
+      '<div class="ic"><svg viewBox="0 0 24 24">' + IC[o.ic] + '</svg></div>' +
+      '<h4>' + o.t + '</h4><div class="sub">' + sub + '</div>' +
+      '<div class="big"><b>' + big.toLocaleString() + '</b><i>' + unit + '</i></div>' +
+      '<div class="pg"><i data-pct="' + pct.toFixed(1) + '"></i></div></div>';
+  }).join('');
+  document.getElementById('dg').innerHTML = html;
+
+  /* 横向时间线（里程碑） */
+  /* 横向时间线（里程碑）：每项下挂可排序的真实日期 d（ISO），显示标签 dt，
+     渲染前按 d 升序排列，保证时间线日期顺序正确（不再把生日插在 520 与 99 天之间）。 */
+  var MILES = [
+    { d: '2026-05-05', dt: '2026.05.05', t: '我们在一起了', x: '从「你们表演的音乐发我呗」到单膝跪地，故事从这天开始。' },
+    { d: '2026-05-20', dt: '2026.05.20', t: '第一个 520', x: '把「我爱你」说出口的第二天，再一天都不算早。' },
+    { d: '2026-08-11', dt: '第 99 天',    t: '99 天之约', x: '九十九天很短，余生很长，约定继续数下去。' },
+    { d: '2027-04-09', dt: '2027.04.09', t: '肖雨童的生日', x: '这一天，宇宙多了一颗我最想守护的星星。' },
+    { d: '2027-05-05', dt: '2027.05.05', t: '在一起一周年', x: '365 天，每一天都比前一天更确定是你。' },
+    { d: '2029-01-27', dt: '第 999 天',  t: '999 天之约', x: '走到这里，我们已经是彼此的习惯与归处。' }
+  ].sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+  var TL = document.getElementById('hzTrack');
+  if (TL) {
+    TL.innerHTML = MILES.map(function (m) {
+      return '<div class="hz-item rv" data-tilt="5">' +
+        '<div class="hz-ic"><svg viewBox="0 0 24 24">' + IC['star'] + '</svg></div>' +
+        '<div class="hz-dt">' + m.dt + '</div>' +
+        '<h4>' + m.t + '</h4>' +
+        '<p>' + m.x + '</p>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* 进度条滚动填充 */
+  var po = new IntersectionObserver(function (es) {
+    es.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      var bar = en.target.querySelector('.pg i');
+      if (bar) setTimeout(function () { bar.style.width = bar.dataset.pct + '%'; }, 220);
+      po.unobserve(en.target);
+    });
+  }, { threshold: 0.3 });
+  Array.prototype.forEach.call(document.querySelectorAll('.dc'), function (el) { po.observe(el); });
+
+  /* 重新挂载揭示动画（卡片是后插入的） */
+  var rvo = new IntersectionObserver(function (es) {
+    es.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      en.target.classList.add('on');
+      rvo.unobserve(en.target);
+    });
+  }, { threshold: 0.1 });
+  Array.prototype.forEach.call(document.querySelectorAll('.dc.rv'), function (el, i) {
+    el.style.transitionDelay = (i % 4 * 0.09) + 's';
+    rvo.observe(el);
+  });
+
+  /* 后插入卡片补上 3D 倾斜 */
+  if (!matchMedia('(hover: none)').matches && innerWidth > 980) {
+    Array.prototype.forEach.call(document.querySelectorAll('.dc[data-tilt]'), function (el) {
+      var amt = +el.dataset.tilt || 6;
+      el.addEventListener('mousemove', function (e) {
+        var r = el.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        el.style.transform = 'perspective(1100px) rotateX(' + ((0.5 - py) * amt).toFixed(2) +
+          'deg) rotateY(' + ((px - 0.5) * amt).toFixed(2) + 'deg) translateZ(5px)';
+        el.style.setProperty('--mx', (px * 100) + '%');
+        el.style.setProperty('--my', (py * 100) + '%');
+      });
+      el.addEventListener('mouseleave', function () { el.style.transform = ''; });
+    });
+  }
+
+  /* 进度环 + 统计 */
+  var days = DTOG;
+  var year1 = new Date(2027, 4, 5);
+  var toYear = Math.max(0, Math.ceil((year1 - NOW) / DAY));
+  var p = Math.min(1, (NOW - START) / (year1 - START));
+  var C = 2 * Math.PI * 92;
+  var val = document.getElementById('ringVal');
+  val.style.strokeDasharray = C;
+  val.style.strokeDashoffset = C;
+  document.getElementById('toYear').textContent = toYear;
+
+  var ro = new IntersectionObserver(function (es) {
+    if (!es[0].isIntersecting) return;
+    ro.disconnect();
+    setTimeout(function () { val.style.strokeDashoffset = C * (1 - p); }, 260);
+    var t0 = performance.now();
+    (function run(t) {
+      var k = Math.min(1, (t - t0) / 1900);
+      document.getElementById('ringDay').textContent = Math.round(days * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(run);
+    })(t0);
+  }, { threshold: 0.3 });
+  ro.observe(document.querySelector('.ring'));
+
+  document.getElementById('mDays').dataset.to = days;
+  document.getElementById('mHours').dataset.to = Math.floor((NOW - START) / 36e5);
+  document.getElementById('mWeeks').dataset.to = Math.floor(days / 7);
+  document.getElementById('mMoon').dataset.to = Math.floor(days / 29.53);
+});
+</script>
+</body>
+</html>

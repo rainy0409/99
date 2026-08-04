@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>爱的盲盒 · 致下雨天</title>
+<meta name="description" content="打开封在雨里的光匣，收藏三个只属于你的 Q 版形象。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff6f8d' d='M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z'/%3E%3C/svg%3E">
+<style>
+  /* ══════════════════════════════════════════════════════
+     盲盒页 · 雨夜光匣（浪漫氛围 / 贴合下雨天）
+     完全重写：去掉缎带·蜡封·问号·铭牌等玩具感元素
+     → 柔光渐变 + 细金线描边 + 飘落雨丝 + 梦幻光晕
+     开盒改为缓慢优雅的「光溢」，而非扭蛋弹跳
+     ══════════════════════════════════════════════════════ */
+
+  /* ── 网格 ── */
+  .bb-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-4);
+    max-width:1060px;margin-inline:auto;
+  }
+  @media(max-width:980px){.bb-grid{grid-template-columns:repeat(2,1fr);max-width:660px;gap:var(--sp-3)}}
+  @media(max-width:640px){.bb-grid{grid-template-columns:1fr;max-width:330px}}
+
+  .bb{position:relative}
+
+  /* ── 舞台：3D 透视容器 ── */
+  .bb-stage{
+    position:relative;aspect-ratio:3/4;border-radius:26px;
+    perspective:1200px;perspective-origin:50% 40%;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;
+    --w:300px;--h:400px;--d:46px;   /* 由 JS 按实际尺寸覆盖 */
+  }
+  .bb-stage:focus-visible{outline:2px solid var(--rose);outline-offset:6px;border-radius:26px}
+
+  /* 梦幻光晕（盒体背后） */
+  .bb-halo{
+    position:absolute;left:50%;top:47%;width:132%;aspect-ratio:1;
+    transform:translate(-50%,-50%);z-index:0;pointer-events:none;
+    background:radial-gradient(circle,
+      color-mix(in srgb,var(--rose) 30%,transparent),
+      color-mix(in srgb,var(--violet) 18%,transparent) 42%,
+      transparent 68%);
+    filter:blur(28px);opacity:.5;
+    transition:opacity .7s var(--ease);
+    animation:bbHalo 7s ease-in-out infinite;
+  }
+  .bb-stage:hover .bb-halo{opacity:.72}
+  @keyframes bbHalo{0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(.95)}50%{opacity:.6;transform:translate(-50%,-50%) scale(1.05)}}
+
+  /* 落地投影 */
+  .bb-shadow{
+    position:absolute;left:14%;right:14%;bottom:-16px;height:26px;border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.55), transparent 70%);
+    filter:blur(11px);z-index:0;transition:all .6s var(--ease);
+  }
+  .bb-stage:hover .bb-shadow{left:18%;right:18%;bottom:-22px;filter:blur(15px);opacity:.85}
+  [data-theme="light"] .bb-shadow{background:radial-gradient(ellipse at center, rgba(120,60,80,.3), transparent 70%)}
+
+  /* ── 盒体 3D 组 ── */
+  .bb-box{
+    position:absolute;inset:0;transform-style:preserve-3d;z-index:1;
+    will-change:transform;
+  }
+  .bb-float{animation:bbFloat 7s ease-in-out infinite}
+  @keyframes bbFloat{0%,100%{translate:0 0}50%{translate:0 -9px}}
+
+  /* ── 真 3D 立方体（正面 + 左右侧面 + 可翻盖顶盖）── */
+  .bb-face{position:absolute;left:50%;top:50%;pointer-events:none}
+  .bb-front{
+    width:var(--w);height:var(--h);margin-left:calc(var(--w)/-2);margin-top:calc(var(--h)/-2);
+    transform:translateZ(calc(var(--d)/2));transform-style:flat;
+  }
+  .bb-side{
+    width:var(--d);height:var(--h);margin-left:calc(var(--d)/-2);margin-top:calc(var(--h)/-2);
+    background:linear-gradient(180deg,
+      color-mix(in srgb,var(--violet) 38%, #191024),
+      color-mix(in srgb,var(--rose)   24%, #1c1119) 50%,
+      color-mix(in srgb,var(--violet) 42%, #150d1f));
+    border-left:1px solid rgba(255,255,255,.16);
+    border-right:1px solid rgba(0,0,0,.26);
+    box-shadow:inset 0 0 30px -8px rgba(0,0,0,.5);
+    backface-visibility:hidden;
+  }
+  [data-theme="light"] .bb-side{
+    background:linear-gradient(180deg,#ecd9ef,#f3dce9 50%,#e7d6f1);
+    border-left:1px solid rgba(255,255,255,.6);
+    border-right:1px solid rgba(120,80,110,.18);
+  }
+  .bb-side-r{transform:rotateY(90deg) translateZ(calc(var(--w)/2))}
+  .bb-side-l{transform:rotateY(-90deg) translateZ(calc(var(--w)/2))}
+  /* 顶盖铰链：水平置于盒顶，绕后缘翻开 */
+  .bb-top-hinge{
+    position:absolute;left:50%;top:0;width:var(--w);height:var(--d);
+    margin-left:calc(var(--w)/-2);
+    transform-origin:50% 0;
+    transform:rotateX(90deg);
+    transform-style:preserve-3d;pointer-events:none;
+  }
+  .bb-lid{
+    position:absolute;inset:0;transform-origin:50% 0;
+    transform-style:preserve-3d;will-change:transform,opacity;
+  }
+
+  /* ── 盒身（正面）—— 雨夜光匣：柔光实体渐变 + 细金线，无 backdrop-filter ── */
+  .bb-base{
+    border-radius:26px;overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 22% 6%,  color-mix(in srgb,var(--rose)   34%,transparent), transparent 54%),
+      radial-gradient(110% 92% at 84% 98%, color-mix(in srgb,var(--violet) 40%,transparent), transparent 56%),
+      linear-gradient(162deg,
+        color-mix(in srgb,var(--violet) 30%, #1a1128),
+        color-mix(in srgb,var(--rose)   20%, #1b101e) 62%,
+        #150d20);
+    border:1px solid color-mix(in srgb,var(--line) 80%, #000);
+    box-shadow:
+      0 30px 80px -34px rgba(157,123,255,.5),
+      inset 0 1px 0 rgba(255,255,255,.16),
+      inset 0 -26px 56px -34px color-mix(in srgb,var(--violet) 38%,transparent);
+  }
+  [data-theme="light"] .bb-base{
+    background:
+      radial-gradient(120% 80% at 22% 6%,  color-mix(in srgb,var(--rose)   32%,transparent), transparent 54%),
+      radial-gradient(110% 92% at 84% 98%, color-mix(in srgb,var(--violet) 36%,transparent), transparent 56%),
+      linear-gradient(162deg, #fff4fa, #ffe6f0 60%, #f1e4ff);
+    border-color:color-mix(in srgb,var(--rose) 28%, #ecd6e2);
+    box-shadow:
+      0 26px 64px -34px rgba(214,120,160,.4),
+      inset 0 1px 0 rgba(255,255,255,.85),
+      inset 0 -24px 50px -34px rgba(170,120,200,.26);
+  }
+
+  /* 飘落雨丝（贴合下雨天主题，极淡、双层错速） */
+  .bb-rain{
+    position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;
+    background-image:repeating-linear-gradient(97deg,
+      transparent 0 11px, rgba(255,255,255,.12) 11px 12px);
+    background-size:30px 320%;
+    opacity:.34;mix-blend-mode:screen;
+    -webkit-mask:linear-gradient(180deg, transparent 0%, #000 26%, #000 74%, transparent 100%);
+            mask:linear-gradient(180deg, transparent 0%, #000 26%, #000 74%, transparent 100%);
+    animation:bbRain 1.5s linear infinite;
+  }
+  .bb-rain::after{
+    content:'';position:absolute;inset:0;
+    background-image:repeating-linear-gradient(94deg,
+      transparent 0 16px, rgba(255,255,255,.08) 16px 17px);
+    background-size:40px 360%;
+    animation:bbRain 2.4s linear infinite reverse;
+  }
+  @keyframes bbRain{from{background-position:0 -30%}to{background-position:0 30%}}
+
+  /* 内部柔光（暗示匣中有光，比问号更浪漫） */
+  .bb-inner{
+    position:absolute;left:50%;top:50%;width:64%;aspect-ratio:1;
+    transform:translate(-50%,-50%);pointer-events:none;
+    background:radial-gradient(circle,
+      color-mix(in srgb,var(--rose) 36%,transparent),
+      color-mix(in srgb,var(--violet) 14%,transparent) 50%, transparent 64%);
+    filter:blur(13px);opacity:.5;animation:bbIn 4.4s ease-in-out infinite;
+  }
+  @keyframes bbIn{0%,100%{opacity:.36;transform:translate(-50%,-50%) scale(.92)}50%{opacity:.6;transform:translate(-50%,-50%) scale(1.06)}}
+
+  /* 暗纹水滴（呼应「下雨天」，细线、低存在感） */
+  .bb-engrave{
+    position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54' viewBox='0 0 54 54'%3E%3Cpath d='M27 8 C19 18 14 24 14 31 a13 13 0 0 0 26 0 C40 24 35 18 27 8 Z' fill='none' stroke='%23ffffff' stroke-width='1.1'/%3E%3C/svg%3E");
+    background-size:54px 54px;opacity:.14;mix-blend-mode:overlay;
+  }
+
+  /* 细金线描边（收藏级质感，替代卡通缎带） */
+  .bb-hair{
+    position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    border:1px solid color-mix(in srgb,#fff 22%, transparent);
+    box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 22%, transparent),
+               inset 0 -1px 0 rgba(0,0,0,.26);
+  }
+
+  /* 编号（极简罗马数字，藏于底角，低调不喧宾夺主） */
+  .bb-motif{
+    position:absolute;left:0;right:0;bottom:18px;z-index:4;text-align:center;pointer-events:none;
+    font-family:var(--f-en);font-size:.72rem;letter-spacing:.42em;color:var(--tx-3);opacity:.62;
+  }
+
+  /* 珍珠柔光（跟随指针，soft-light，克制） */
+  .bb-sheen{
+    position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(60% 44% at var(--mx,50%) var(--my,34%), rgba(255,255,255,.42), transparent 60%);
+    mix-blend-mode:soft-light;opacity:0;transition:opacity .5s var(--ease);
+  }
+  .bb-stage:hover .bb-sheen{opacity:.85}
+
+  /* 掠光（开盒瞬间的微光，极淡） */
+  .bb-shine{
+    position:absolute;inset:-45%;pointer-events:none;z-index:5;border-radius:inherit;
+    background:linear-gradient(74deg, transparent 42%,
+      rgba(255,255,255,.16) 47%, rgba(255,255,255,.34) 50%, rgba(255,255,255,.16) 53%, transparent 58%);
+    transform:translateX(-120%);opacity:0;
+  }
+  .bb-stage:hover .bb-shine{animation:bbSweep 1.4s var(--ease)}
+  @keyframes bbSweep{0%{transform:translateX(-120%);opacity:0}18%{opacity:1}100%{transform:translateX(120%);opacity:0}}
+
+  /* ── 顶盖（挂在铰链上翻开）── */
+  .bb-lid-face{
+    position:absolute;inset:0;border-radius:26px;overflow:hidden;
+    background:
+      radial-gradient(120% 96% at 26% 8%, color-mix(in srgb,var(--violet) 34%,transparent), transparent 60%),
+      linear-gradient(168deg,
+        color-mix(in srgb,var(--rose)   26%, #1c1222),
+        color-mix(in srgb,var(--violet) 24%, #180f24) 70%,
+        #150c20);
+    border:1px solid color-mix(in srgb,var(--line-s) 80%, #000);
+    box-shadow:0 16px 34px -14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  [data-theme="light"] .bb-lid-face{
+    background:
+      radial-gradient(120% 96% at 26% 8%, color-mix(in srgb,var(--violet) 32%,transparent), transparent 60%),
+      linear-gradient(168deg, #ffe1ec, #f0e1fb 70%, #ead9f4);
+    border-color:color-mix(in srgb,var(--rose) 28%, #ecd6e2);
+  }
+
+  /* ── 开盒特效层 ── */
+  /* 柔光绽放（替代硬光柱，缓慢晕开） */
+  .bb-bloom{
+    position:absolute;left:50%;top:50%;width:90%;aspect-ratio:1;z-index:5;
+    transform:translate(-50%,-50%) scale(.6);border-radius:50%;pointer-events:none;opacity:0;
+    background:radial-gradient(circle,
+      rgba(255,244,250,.92),
+      color-mix(in srgb,var(--rose) 30%,transparent) 40%,
+      transparent 70%);
+    filter:blur(8px);mix-blend-mode:screen;
+  }
+  .bb-burst{position:absolute;inset:0;display:grid;place-items:center;z-index:6;pointer-events:none;opacity:0}
+  .bb-ring{position:absolute;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--rose);opacity:0;
+    box-shadow:0 0 12px color-mix(in srgb,var(--rose) 50%,transparent)}
+  .bb-pt{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 9px var(--gold);opacity:0}
+
+  /* 开盒瞬间白色微光 */
+  .bb-flash{position:absolute;left:50%;top:50%;width:82%;aspect-ratio:1;
+    transform:translate(-50%,-50%) scale(0);border-radius:50%;pointer-events:none;z-index:7;
+    background:radial-gradient(circle, rgba(255,255,255,.95), rgba(255,214,233,.5) 36%, transparent 66%);
+    opacity:0;mix-blend-mode:screen}
+
+  /* ── 3D 展示 ── */
+  .bb-view{
+    position:absolute;inset:0;border-radius:26px;overflow:hidden;z-index:4;opacity:0;
+    background:radial-gradient(circle at 50% 40%, color-mix(in srgb,var(--violet) 14%,transparent), transparent 66%);
+    will-change:transform,opacity;
+  }
+  .bb-view canvas{width:100%;height:100%;display:block;touch-action:pan-y}
+
+  /* 加载进度环 */
+  .bb-prog{
+    position:absolute;inset:0;display:grid;place-items:center;z-index:8;pointer-events:none;
+    transition:opacity .45s var(--ease);
+  }
+  .bb-prog[hidden]{display:none}
+  .bb-prog svg{width:58px;height:58px;transform:rotate(-90deg)}
+  .bb-prog circle{fill:none;stroke-width:3;stroke-linecap:round}
+  .bb-prog .trk{stroke:var(--line-s)}
+  .bb-prog .bar{stroke:var(--gold);stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset .3s linear}
+  .bb-prog .txt{position:absolute;left:0;right:0;top:calc(50% + 44px);text-align:center;
+    font-size:var(--fs-xs);letter-spacing:.14em;color:var(--tx-3);white-space:nowrap}
+
+  /* 信息卡 */
+  .bb-info{
+    position:absolute;left:0;right:0;bottom:0;padding:1.5rem 1rem 1.6rem;z-index:6;text-align:center;
+    background:linear-gradient(transparent, color-mix(in srgb,var(--bg) 92%,transparent) 48%);
+    opacity:0;pointer-events:none;
+  }
+  .bb-info-nm{font-size:var(--fs-h3);font-weight:500;letter-spacing:.06em;margin-bottom:.28rem}
+  .bb-info-en{display:block;font-family:var(--f-en);font-size:var(--fs-xs);letter-spacing:.3em;
+    color:var(--tx-3);margin-bottom:.5rem;text-transform:uppercase}
+  .bb-info-ds{font-size:var(--fs-sm);color:var(--tx-2);line-height:1.7}
+
+  /* 重开按钮 */
+  .bb-reset{
+    position:absolute;top:12px;right:12px;z-index:12;width:36px;height:36px;border-radius:50%;
+    background:color-mix(in srgb,var(--bg) 72%,transparent);border:1px solid var(--line);
+    color:var(--tx-3);cursor:pointer;font-size:1.05rem;line-height:1;
+    display:none;align-items:center;justify-content:center;
+    transition:all .3s var(--ease);backdrop-filter:blur(10px);
+  }
+  .bb-reset:hover{background:var(--rose);color:#fff;border-color:var(--rose);transform:rotate(-90deg)}
+  .bb.opened .bb-reset{display:flex}
+
+  /* 提示条 */
+  .bb-tag{
+    margin-top:1.1rem;text-align:center;font-size:var(--fs-sm);letter-spacing:.24em;color:var(--tx-3);
+    transition:color .4s var(--ease);
+  }
+  .bb-stage:hover + .bb-tag{color:var(--rose)}
+  .bb.opened .bb-tag{color:var(--tx-3);opacity:.5}
+
+  /* 失败态 */
+  .bb-err{
+    position:absolute;inset:0;display:none;place-items:center;z-index:9;padding:2rem;text-align:center;
+    font-size:var(--fs-sm);color:var(--tx-3);line-height:1.8;
+  }
+  .bb-err.on{display:grid}
+
+  .bb-footer{margin-top:var(--sp-5);text-align:center;color:var(--tx-3);font-size:var(--fs-sm)}
+
+  @media (prefers-reduced-motion: reduce){
+    .bb-float,.bb-halo,.bb-inner,.bb-rain,.bb-shine{animation:none!important}
+  }
+</style>
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/three.min.js" defer></script>
+<script src="assets/vendor/GLTFLoader.js" defer></script>
+<script src="assets/vendor/DRACOLoader.js" defer></script>
+<script src="assets/js/space3d.js" defer></script>
+<script src="assets/js/core.js" defer></script>
+</head>
+<body data-page="blindbox" data-fx="">
+
+<div id="loader">
+  <svg class="ld-heart" viewBox="0 0 32 32"><path d="M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z"/></svg>
+  <div class="ld-txt">Blind Box</div>
+  <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+  <div class="ld-pct" id="ldPct">0%</div>
+</div>
+
+<header class="phero">
+  <div class="atmo a2"></div>
+  <div class="wrap">
+    <span class="en-label">Blind Box · Rainy Night</span>
+    <h1 class="grad">爱的盲盒</h1>
+    <p class="lead">三只封在雨里的光匣，各藏着一个你。轻触，让光溢出来。</p>
+    <div class="rule"></div>
+  </div>
+</header>
+
+<section class="tight">
+  <div class="atmo a3"></div>
+  <div class="wrap">
+    <div class="bb-grid" id="bbGrid"><!-- 由脚本按 BOXES 渲染 --></div>
+    <p class="bb-footer">每一只光匣，都是我想把你收藏起来的方式</p>
+  </div>
+</section>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   盲盒引擎 v3 · 雨夜光匣（完全重写）
+   · 柔光礼匣：暗纹水滴 + 飘落雨丝 + 内部柔光 + 细金线 + 梦幻光晕
+   · GSAP 主时间线开盒（呼吸 → 掀盖如雾散 → 柔光晕开 → 升起）
+   · Three.js r147 展示 GLB，暖调环境光 + 接触阴影 + 惯性拖拽
+   ═══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
+
+  var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var MOBILE = innerWidth < 760;
+  var ROMAN = ['I', 'II', 'III'];
+
+  /* ── 藏品数据 ── */
+  var BOXES = [
+    { file:'cat-girl',    idx:'01', nm:'猫耳少女', en:'Cat Ear',  ds:'雨天蜷在窗边打盹的那只小猫，是你。' },
+    { file:'campus-girl', idx:'02', nm:'校园女孩', en:'Campus',   ds:'回到初遇那年的走廊，你抬头看了我一眼。' },
+    { file:'anime-girl',  idx:'03', nm:'动漫女孩', en:'Anime',    ds:'我心里，你一直是这个样子——会发光的。' }
+  ];
+
+  var grid = document.getElementById('bbGrid');
+  if (!grid) return;
+
+  /* ── 渲染卡片 ── */
+  grid.innerHTML = BOXES.map(function (b, i) {
+    return ''
+    + '<article class="bb" data-file="' + b.file + '">'
+    +   '<div class="bb-stage" role="button" tabindex="0" aria-label="打开盲盒 ' + b.nm + '">'
+    +     '<div class="bb-halo"></div>'
+    +     '<div class="bb-shadow"></div>'
+    +     '<div class="bb-box' + (REDUCE ? '' : ' bb-float') + '" style="animation-delay:' + (i * 0.9) + 's">'
+    +       '<div class="bb-base bb-face bb-front">'
+    +         '<div class="bb-rain"></div>'
+    +         '<div class="bb-inner"></div>'
+    +         '<div class="bb-engrave"></div>'
+    +         '<div class="bb-hair"></div>'
+    +         '<div class="bb-sheen"></div>'
+    +         '<div class="bb-motif">' + ROMAN[i] + '</div>'
+    +       '</div>'
+    +       '<div class="bb-face bb-side bb-side-l"></div>'
+    +       '<div class="bb-face bb-side bb-side-r"></div>'
+    +       '<div class="bb-top-hinge">'
+    +         '<div class="bb-lid">'
+    +           '<div class="bb-lid-face">'
+    +             '<div class="bb-engrave"></div>'
+    +             '<div class="bb-hair"></div>'
+    +           '</div>'
+    +         '</div>'
+    +       '</div>'
+    +     '</div>'
+    +     '<div class="bb-bloom"></div>'
+    +     '<div class="bb-burst"><i class="bb-ring"></i><i class="bb-ring"></i><i class="bb-ring"></i></div>'
+    +     '<div class="bb-flash"></div>'
+    +     '<div class="bb-view"><canvas></canvas></div>'
+    +     '<div class="bb-prog" hidden>'
+    +       '<svg viewBox="0 0 58 58"><circle class="trk" cx="29" cy="29" r="25"></circle><circle class="bar" cx="29" cy="29" r="25"></circle></svg>'
+    +       '<span class="txt">载入中 0%</span>'
+    +     '</div>'
+    +     '<div class="bb-err">模型加载失败<br>请检查网络后重试</div>'
+    +     '<div class="bb-info">'
+    +       '<div class="bb-info-nm">' + b.nm + '</div>'
+    +       '<span class="bb-info-en">' + b.en + '</span>'
+    +       '<div class="bb-info-ds">' + b.ds + '</div>'
+    +     '</div>'
+    +     '<button class="bb-reset" type="button" title="重新封盒" aria-label="重新封盒">&#8634;</button>'
+    +   '</div>'
+    +   '<div class="bb-tag">轻触开启</div>'
+    + '</article>';
+  }).join('');
+
+  /* 量取真实尺寸 → 注入 3D 立方体变量 */
+  Array.prototype.forEach.call(grid.querySelectorAll('.bb-stage'), function (st) {
+    var w = st.clientWidth || 300, h = st.clientHeight || 400;
+    st.style.setProperty('--w', w + 'px');
+    st.style.setProperty('--h', h + 'px');
+    st.style.setProperty('--d', Math.max(42, Math.round(w * 0.3)) + 'px');
+  });
+
+  /* ── 等 GSAP 就位 ── */
+  function whenGsap(cb) {
+    if (window.gsap) return cb(window.gsap);
+    var n = 0, t = setInterval(function () {
+      if (window.gsap) { clearInterval(t); cb(window.gsap); }
+      else if (++n > 120) { clearInterval(t); cb(null); }
+    }, 50);
+  }
+
+  /* ═════════ Three.js 展示器 ═════════ */
+  var viewers = {};
+
+  function envMap(renderer) {
+    var c = document.createElement('canvas'); c.width = 32; c.height = 32;
+    var g = c.getContext('2d');
+    var grd = g.createLinearGradient(0, 0, 0, 32);
+    grd.addColorStop(0, '#fff3ea');
+    grd.addColorStop(0.46, '#e8c7ff');
+    grd.addColorStop(1, '#2a2038');
+    g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
+    var tex = new THREE.CanvasTexture(c);
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    var pm = new THREE.PMREMGenerator(renderer);
+    var env = pm.fromEquirectangular(tex).texture;
+    pm.dispose(); tex.dispose();
+    return env;
+  }
+
+  function shadowPlane() {
+    var c = document.createElement('canvas'); c.width = c.height = 128;
+    var g = c.getContext('2d');
+    var grd = g.createRadialGradient(64, 64, 4, 64, 64, 62);
+    grd.addColorStop(0, 'rgba(0,0,0,0.5)');
+    grd.addColorStop(0.55, 'rgba(0,0,0,0.2)');
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
+    var tex = new THREE.CanvasTexture(c);
+    var m = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.4, 3.4),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+    );
+    m.rotation.x = -Math.PI / 2;
+    return m;
+  }
+
+  function makeViewer(stage, file) {
+    if (viewers[file]) return viewers[file];
+
+    var view   = stage.querySelector('.bb-view');
+    var canvas = view.querySelector('canvas');
+    var prog   = stage.querySelector('.bb-prog');
+    var bar    = prog.querySelector('.bar');
+    var ptxt   = prog.querySelector('.txt');
+    var errEl  = stage.querySelector('.bb-err');
+
+    var renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvas, alpha: true, antialias: !MOBILE,
+        premultipliedAlpha: true, powerPreference: 'high-performance'
+      });
+    } catch (e) { errEl.classList.add('on'); return null; }
+
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, MOBILE ? 1.75 : 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
+
+    var scene  = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+    camera.position.set(0, 0.18, 5.2);
+    camera.lookAt(0, 0.1, 0);
+
+    scene.environment = envMap(renderer);
+
+    /* 暖调浪漫布光 */
+    scene.add(new THREE.HemisphereLight(0xffeaf0, 0x2a1830, 0.62));
+    var key = new THREE.DirectionalLight(0xfff0e6, 1.2); key.position.set(2.6, 3.4, 4.2); scene.add(key);
+    var fil = new THREE.DirectionalLight(0xc9b6ff, 0.5); fil.position.set(-3.2, 1.0, -1.8); scene.add(fil);
+    var rim = new THREE.DirectionalLight(0xff9bb6, 0.82); rim.position.set(-1.4, -1.2, -3.6); scene.add(rim);
+
+    var pivot = new THREE.Group(); scene.add(pivot);
+    var shadow = shadowPlane(); shadow.position.y = -1.32; shadow.visible = false; scene.add(shadow);
+
+    var model = null, baseY = 0, spin = 0.42, running = false, raf = 0;
+    var autoRot = true, drag = false, lastX = 0, vel = 0, relTimer = 0;
+
+    function resize() {
+      var w = view.clientWidth || 300, h = view.clientHeight || 400;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+    resize();
+
+    var t0 = performance.now();
+    function frame() {
+      if (!running) return;
+      raf = requestAnimationFrame(frame);
+      var t = (performance.now() - t0) / 1000;
+      if (model) {
+        if (autoRot) pivot.rotation.y += spin * 0.016;
+        pivot.position.y = baseY + Math.sin(t * 1.1) * 0.03;
+      }
+      try { renderer.render(scene, camera); } catch (e) { running = false; }
+    }
+    function start() { if (!running) { running = true; raf = requestAnimationFrame(frame); } }
+    function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; }
+
+    /* 视口外自动停帧 */
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) { if (model) start(); } else stop(); });
+      }, { threshold: 0.05 }).observe(stage);
+    }
+    addEventListener('resize', resize, { passive: true });
+
+    /* 拖拽旋转 + 惯性 */
+    canvas.addEventListener('pointerdown', function (e) {
+      drag = true; lastX = e.clientX; autoRot = false; vel = 0;
+      clearTimeout(relTimer);
+      canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var dx = e.clientX - lastX; lastX = e.clientX;
+      pivot.rotation.y += dx * 0.009; vel = dx * 0.009;
+    });
+    function release() {
+      if (!drag) return;
+      drag = false;
+      var decay = function () {
+        if (Math.abs(vel) < 0.0008 || autoRot) return;
+        pivot.rotation.y += vel; vel *= 0.94; requestAnimationFrame(decay);
+      };
+      decay();
+      relTimer = setTimeout(function () { autoRot = true; }, 2600);
+    }
+    canvas.addEventListener('pointerup', release);
+    canvas.addEventListener('pointercancel', release);
+    canvas.addEventListener('pointerleave', release);
+
+    /* GLB 载入 */
+    function fit(m) {
+      var box = new THREE.Box3().setFromObject(m);
+      var size = box.getSize(new THREE.Vector3());
+      var ctr  = box.getCenter(new THREE.Vector3());
+      var maxD = Math.max(size.x, size.y, size.z) || 1;
+      var s = 2.35 / maxD;
+      m.scale.setScalar(s);
+      m.position.set(-ctr.x * s, -ctr.y * s, -ctr.z * s);
+      shadow.position.y = -(size.y * s) / 2 - 0.06;
+      shadow.scale.setScalar(Math.max(0.55, (size.x * s) / 1.6));
+      return m;
+    }
+
+    var loaded = null;
+    function load() {
+      if (loaded) return loaded;
+      prog.hidden = false;
+      var loader = new THREE.GLTFLoader();
+      var setD = loader.setDRACOLoader || loader.setDracoLoader;
+      if (setD && THREE.DRACOLoader) {
+        var dl = new THREE.DRACOLoader();
+        dl.setDecoderPath('assets/vendor/draco/');
+        setD.call(loader, dl);
+      }
+      loaded = new Promise(function (resolve) {
+        loader.load('assets/models/' + file + '.glb',
+          function (gltf) {
+            model = fit(gltf.scene);
+            model.traverse(function (c) {
+              if (c.isMesh && c.material) {
+                var ms = Array.isArray(c.material) ? c.material : [c.material];
+                ms.forEach(function (mt) {
+                  if (mt.map) mt.map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+                  mt.envMapIntensity = 0.6;
+                  if ('roughness' in mt) mt.roughness = Math.min(1, (mt.roughness == null ? 0.8 : mt.roughness));
+                });
+              }
+            });
+            pivot.add(model);
+            pivot.rotation.y = -Math.PI * 0.85;
+            baseY = pivot.position.y;
+            shadow.visible = true;
+            prog.style.opacity = '0';
+            setTimeout(function () { prog.hidden = true; }, 450);
+            resize(); start();
+            resolve(true);
+          },
+          function (xhr) {
+            if (xhr && xhr.lengthComputable && xhr.total) {
+              var p = Math.min(1, xhr.loaded / xhr.total);
+              bar.style.strokeDashoffset = String(157 * (1 - p));
+              ptxt.textContent = '载入中 ' + Math.round(p * 100) + '%';
+            } else { ptxt.textContent = '载入中…'; }
+          },
+          function (err) {
+            console.warn('[BB] GLB 加载失败 ' + file, err && err.message);
+            prog.hidden = true; errEl.classList.add('on');
+            resolve(false);
+          });
+      });
+      return loaded;
+    }
+
+    var api = {
+      load: load, start: start, stop: stop, resize: resize,
+      get pivot() { return pivot; },
+      get ready() { return !!model; },
+      lockAuto: function (v) { autoRot = !v; }
+    };
+    viewers[file] = api;
+    return api;
+  }
+
+  /* ═════════ 开盒时间线（浪漫·光溢）═════════ */
+  whenGsap(function (gsap) {
+
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.bb'));
+    var current = null;
+
+    cards.forEach(function (card) {
+      var file  = card.dataset.file;
+      var stage = card.querySelector('.bb-stage');
+      var box   = card.querySelector('.bb-box');
+      var lid   = card.querySelector('.bb-lid');
+      var inner = card.querySelector('.bb-inner');
+      var halo  = card.querySelector('.bb-halo');
+      var base  = card.querySelector('.bb-base');
+      var bloom = card.querySelector('.bb-bloom');
+      var burst = card.querySelector('.bb-burst');
+      var rings = card.querySelectorAll('.bb-ring');
+      var view  = card.querySelector('.bb-view');
+      var info  = card.querySelector('.bb-info');
+      var reset = card.querySelector('.bb-reset');
+      var flash = card.querySelector('.bb-flash');
+      var opened = false, tl = null;
+
+      /* ── 磁吸 3D 倾斜（跟手且丝滑）── */
+      if (gsap && !REDUCE && matchMedia('(hover:hover)').matches) {
+        var rX = gsap.quickTo(box, 'rotationX', { duration: 0.55, ease: 'power3' });
+        var rY = gsap.quickTo(box, 'rotationY', { duration: 0.55, ease: 'power3' });
+        stage.addEventListener('pointermove', function (e) {
+          var r = stage.getBoundingClientRect();
+          var px = (e.clientX - r.left) / r.width;
+          var py = (e.clientY - r.top) / r.height;
+          if (!opened) { rY((px - 0.5) * 16); rX(-(py - 0.5) * 12); }
+          var mx = (px * 100).toFixed(1) + '%', my = (py * 100).toFixed(1) + '%';
+          card.querySelectorAll('.bb-sheen').forEach(function (el) {
+            el.style.setProperty('--mx', mx); el.style.setProperty('--my', my);
+          });
+        });
+        stage.addEventListener('pointerleave', function () { rX(0); rY(0); });
+      }
+
+      /* ── 悬停预取模型字节 ── */
+      var prefetched = false;
+      function prefetch() {
+        if (prefetched) return; prefetched = true;
+        try { fetch('assets/models/' + file + '.glb', { cache: 'force-cache' }); } catch (e) {}
+      }
+      stage.addEventListener('pointerenter', prefetch, { once: true });
+      if (window.IntersectionObserver) {
+        new IntersectionObserver(function (es, o) {
+          es.forEach(function (e) { if (e.isIntersecting) { prefetch(); o.disconnect(); } });
+        }, { rootMargin: '200px' }).observe(stage);
+      }
+
+      /* ── 主时间线 ── */
+      function open() {
+        if (opened) return; opened = true;
+        if (current && current !== card) current._close();
+        current = card;
+        card.classList.add('opened');
+        box.classList.remove('bb-float');
+        stage.setAttribute('aria-expanded', 'true');
+
+        var vw = makeViewer(stage, file);
+        if (vw) vw.load();
+
+        /* 柔光粒子 */
+        var PN = MOBILE ? 14 : 22;
+        for (var i = 0; i < PN; i++) {
+          var p = document.createElement('i'); p.className = 'bb-pt';
+          if (i % 3 === 0) { p.style.background = 'var(--rose)'; p.style.boxShadow = '0 0 9px var(--rose)'; }
+          if (i % 4 === 0) { p.style.background = 'var(--violet)'; p.style.boxShadow = '0 0 9px var(--violet)'; }
+          burst.appendChild(p);
+        }
+        var pts = burst.querySelectorAll('.bb-pt');
+
+        if (!gsap) {
+          lid.style.display = 'none'; view.style.opacity = '1'; info.style.opacity = '1';
+          return;
+        }
+
+        gsap.set([lid, view, info, bloom, burst, flash], { willChange: 'transform,opacity' });
+
+        tl = gsap.timeline({
+          defaults: { ease: 'power3.out' },
+          onComplete: function () {
+            gsap.set([lid, bloom, burst], { willChange: 'auto' });
+            if (vw) vw.lockAuto(false);
+          }
+        });
+
+        /* ① 呼吸：轻轻吸气般下压再回正 */
+        tl.to(box, { scaleX: 1.03, scaleY: 0.975, duration: 0.5, ease: 'power2.inOut' }, 0)
+          .to(box, { scaleX: 1, scaleY: 1, duration: 0.7, ease: 'power2.inOut' }, 0.5);
+        tl.fromTo(card, { y: 0 }, { y: -6, duration: 0.6, ease: 'power2.out' }, 0)
+          .to(card, { y: 0, duration: 0.8, ease: 'power2.inOut' }, 0.6);
+
+        /* ② 掀盖：如首饰盒般缓缓翻开，再化作薄雾升起 */
+        tl.to(lid, { rotationX: 74, transformOrigin: '50% 0', duration: 0.7, ease: 'power2.inOut' }, 0.55)
+          .to(lid, { rotationX: 120, duration: 0.7, ease: 'power3.inOut' }, 1.25)
+          .to(lid, { y: -82, opacity: 0, duration: 0.9, ease: 'power1.out' }, 1.25);
+
+        /* 内部柔光随开盒隐去 */
+        tl.to(inner, { opacity: 0, duration: 0.5 }, 0.9);
+        /* 光晕在开盒瞬间微微亮起 */
+        tl.to(halo, { opacity: 0.85, duration: 0.8, ease: 'power2.out' }, 0.7)
+          .to(halo, { opacity: 0.6, duration: 1.2 }, 1.5);
+
+        /* ③ 柔光绽放：光从匣心缓缓晕开 */
+        tl.set(bloom, { opacity: 1, scale: 0.6 }, 0.7)
+          .to(bloom, { scale: 1.15, opacity: 0.9, duration: 0.9, ease: 'power2.out' }, 0.7)
+          .to(bloom, { opacity: 0, duration: 0.7, ease: 'power1.out' }, 1.5);
+
+        /* ④ 光环 + 粒子（与掀盖同步迸发，柔和缓慢） */
+        tl.set(burst, { opacity: 1 }, 0.85);
+        Array.prototype.forEach.call(rings, function (r, i) {
+          tl.fromTo(r, { scale: 0, opacity: 0.8 },
+            { scale: 5 + i * 1.6, opacity: 0, duration: 1.0, ease: 'power2.out' }, 0.85 + i * 0.08);
+        });
+        Array.prototype.forEach.call(pts, function (p, i) {
+          var a = (i / pts.length) * 6.283 + Math.random() * 0.5;
+          var d = 60 + Math.random() * 95;
+          tl.fromTo(p, { x: 0, y: 0, opacity: 1, scale: 1 },
+            { x: Math.cos(a) * d, y: Math.sin(a) * d, opacity: 0, scale: 0.2,
+              duration: 1.0 + Math.random() * 0.5, ease: 'power2.out' },
+            0.88 + Math.random() * 0.16);
+        });
+        tl.to(burst, { opacity: 0, duration: 0.3 }, 1.6);
+
+        /* ⑤ 盒身淡为微光，模型升起 */
+        tl.to(base, { opacity: 0.14, duration: 0.8 }, 1.0);
+        tl.fromTo(view, { opacity: 0, scale: 0.68, y: 70 },
+          { opacity: 1, scale: 1, y: 0, duration: 1.15, ease: 'back.out(1.3)' }, 1.0);
+
+        /* ⑥ 开盒微光在现身一刻轻绽 */
+        tl.fromTo(flash, { scale: 0, opacity: 0 }, { scale: 1.05, opacity: 0.9, duration: 0.25, ease: 'power2.out' }, 1.0)
+          .to(flash, { opacity: 0, scale: 1.25, duration: 0.6, ease: 'power1.out' }, 1.25);
+
+        /* 模型旋入正面 */
+        tl.add(function () {
+          if (vw) vw.load().then(function (ok) {
+            if (!ok || !vw.ready) return;
+            vw.lockAuto(true);
+            gsap.to(vw.pivot.rotation, {
+              y: 0, duration: 1.6, ease: 'power2.out',
+              onComplete: function () { vw.lockAuto(false); }
+            });
+          });
+        }, 1.05);
+
+        /* ⑦ 名牌滑入 */
+        tl.fromTo(info, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7 }, 1.55)
+          .fromTo(info.children, { opacity: 0, y: 12 },
+            { opacity: 1, y: 0, duration: 0.55, stagger: 0.09 }, 1.6);
+      }
+
+      /* ── 重新封盒 ── */
+      function close() {
+        if (!opened) return; opened = false;
+        if (current === card) current = null;
+        card.classList.remove('opened');
+        stage.setAttribute('aria-expanded', 'false');
+        if (tl) tl.kill();
+        var vw = viewers[file];
+        if (vw) vw.stop();
+
+        if (gsap) {
+          gsap.set(lid,   { rotationX: 0, rotationZ: 0, x: 0, y: 0, opacity: 1 });
+          gsap.set(inner, { opacity: 0.5 });
+          gsap.set(halo,  { opacity: 0.5 });
+          gsap.set(base,  { opacity: 1 });
+          gsap.set(box,   { rotationX: 0, rotationY: 0, rotationZ: 0, scaleX: 1, scaleY: 1 });
+          gsap.set(view,  { opacity: 0, scale: 0.68, y: 70 });
+          gsap.set(info,  { opacity: 0, y: 24 });
+          gsap.set(bloom, { opacity: 0, scale: 0.6 });
+          gsap.set(burst, { opacity: 0 });
+          gsap.set(flash, { clearProps: 'all' });
+          gsap.set(card,  { clearProps: 'transform' });
+        }
+        burst.querySelectorAll('.bb-pt').forEach(function (p) { p.remove(); });
+        if (!REDUCE) box.classList.add('bb-float');
+      }
+
+      stage.addEventListener('click', open);
+      stage.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+      });
+      reset.addEventListener('click', function (e) { e.stopPropagation(); close(); });
+      card._close = close;
+    });
+  });
+});
+</script>
+</body>
+</html>
