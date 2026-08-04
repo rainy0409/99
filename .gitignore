@@ -1,0 +1,14 @@
+# WorkBuddy scratch / memory (not part of the site)
+.scratch/
+.workbuddy/
+node_modules/
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# dev scratch scripts (not part of the site)
+.check.js
+.extract_audio.py
