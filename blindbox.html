@@ -312,8 +312,7 @@
 </style>
 <script src="assets/vendor/gsap.min.js" defer></script>
 <script src="assets/vendor/three.min.js" defer></script>
-<script src="assets/vendor/GLTFLoader.js" defer></script>
-<script src="assets/vendor/DRACOLoader.js" defer></script>
+    <script src="assets/vendor/GLTFLoader.js" defer></script>
 <script src="assets/js/space3d.js" defer></script>
 <script src="assets/js/core.js" defer></script>
 </head>
@@ -587,12 +586,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (loaded) return loaded;
       prog.hidden = false;
       var loader = new THREE.GLTFLoader();
-      var setD = loader.setDRACOLoader || loader.setDracoLoader;
-      if (setD && THREE.DRACOLoader) {
-        var dl = new THREE.DRACOLoader();
-        dl.setDecoderPath('assets/vendor/draco/');
-        setD.call(loader, dl);
-      }
       loaded = new Promise(function (resolve) {
         loader.load('assets/models/' + file + '.glb',
           function (gltf) {
@@ -625,6 +618,7 @@ document.addEventListener('DOMContentLoaded', function () {
           },
           function (err) {
             console.warn('[BB] GLB 加载失败 ' + file, err && err.message);
+            try { errEl.innerHTML += '<br><small style="opacity:.7">' + (err && err.message ? err.message : err) + '</small>'; } catch (e) {}
             prog.hidden = true; errEl.classList.add('on');
             resolve(false);
           });
