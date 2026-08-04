@@ -508,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var shadow = shadowPlane(); shadow.position.y = -1.32; shadow.visible = false; scene.add(shadow);
 
     var model = null, baseY = 0, spin = 0.42, running = false, raf = 0;
-    var autoRot = true, drag = false, lastX = 0, vel = 0, relTimer = 0;
+    var autoRot = true, drag = false, lastX = 0, vel = 0, relTimer = 0, isOpen = false;
 
     function resize() {
       var w = view.clientWidth || 300, h = view.clientHeight || 400;
@@ -532,10 +532,13 @@ document.addEventListener('DOMContentLoaded', function () {
     function start() { if (!running) { running = true; raf = requestAnimationFrame(frame); } }
     function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; }
 
-    /* 视口外自动停帧 */
+    /* 视口外自动停帧（仅在盒子关闭时才停，打开期间不被误杀） */
     if (window.IntersectionObserver) {
       new IntersectionObserver(function (es) {
-        es.forEach(function (e) { if (e.isIntersecting) { if (model) start(); } else stop(); });
+        es.forEach(function (e) {
+          if (e.isIntersecting) { if (model) start(); }
+          else if (!isOpen) stop();
+        });
       }, { threshold: 0.05 }).observe(stage);
     }
     addEventListener('resize', resize, { passive: true });
@@ -633,7 +636,8 @@ document.addEventListener('DOMContentLoaded', function () {
       load: load, start: start, stop: stop, resize: resize,
       get pivot() { return pivot; },
       get ready() { return !!model; },
-      lockAuto: function (v) { autoRot = !v; }
+      lockAuto: function (v) { autoRot = !v; },
+      setOpen: function (v) { isOpen = v; if (v) start(); }
     };
     viewers[file] = api;
     return api;
@@ -702,7 +706,7 @@ document.addEventListener('DOMContentLoaded', function () {
         stage.setAttribute('aria-expanded', 'true');
 
         var vw = makeViewer(stage, file);
-        if (vw) vw.load();
+        if (vw) { vw.setOpen(true); vw.load(); }
 
         /* 柔光粒子 */
         var PN = MOBILE ? 14 : 22;
@@ -802,7 +806,7 @@ document.addEventListener('DOMContentLoaded', function () {
         stage.setAttribute('aria-expanded', 'false');
         if (tl) tl.kill();
         var vw = viewers[file];
-        if (vw) vw.stop();
+        if (vw) { vw.setOpen(false); vw.stop(); }
 
         if (gsap) {
           gsap.set(lid,   { rotationX: 0, rotationZ: 0, x: 0, y: 0, opacity: 1 });
