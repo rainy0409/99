@@ -854,7 +854,7 @@ function initMusic() {
     }).catch(() => { kicked = false; pendingMode = 'real'; });   // 自动播放被拦截：保留真实歌曲意图，等用户手势再续播
     // 关键：必须先拿到本地 Blob（可 seek）再起播，否则远程 url 无 Range → seek 失败 → 从 0 重播
     if (blobUrls[trackIdx]) { bgm.src = blobUrls[trackIdx]; begin(); }
-    else { pendingMode = 'real'; fetchBlob(trackIdx).then(u => { if (u && pendingMode === 'real') { bgm.src = u; begin(); } }); }
+    else { pendingMode = 'real'; fetchBlob(trackIdx).then(u => { if (u && pendingMode === 'real') { bgm.src = u; begin(); } else if (pendingMode === 'real') { bgm.src = TRACKS[trackIdx].src; begin(); } }); }
   }
   function toggle() {
     if (mode === 'real') { if (bgm.paused) { bgm.play(); ui(true); } else { bgm.pause(); ui(false); } return; }
