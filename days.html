@@ -4,9 +4,62 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>纪念日 · 致下雨天</title>
+<!-- ▼ SEO / 社交分享（由 .scratch/inject_meta.js 生成，勿手改） -->
+<meta name="description" content="把每一个值得纪念的日子，都数着过 —— 相伴的第几天，下一个约定还有多久。">
+<link rel="canonical" href="https://99-beta-rose.vercel.app/days.html">
+<meta name="theme-color" content="#0e0a1a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f3ef" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="致下雨天">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="纪念日 · 致下雨天">
+<meta property="og:description" content="把每一个值得纪念的日子，都数着过 —— 相伴的第几天，下一个约定还有多久。">
+<meta property="og:url" content="https://99-beta-rose.vercel.app/days.html">
+<meta property="og:image" content="https://99-beta-rose.vercel.app/assets/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="纪念日 · 致下雨天">
+<meta name="twitter:description" content="把每一个值得纪念的日子，都数着过 —— 相伴的第几天，下一个约定还有多久。">
+<meta name="twitter:image" content="https://99-beta-rose.vercel.app/assets/og-cover.jpg">
+<meta name="baidu-site-verification" content="">
+<meta http-equiv="Cache-Control" content="public, max-age=3600">
+<meta name="wechat:vertical" content="portrait">
+<meta property="bytedance:webpage:title" content="纪念日 · 致下雨天">
+<meta property="bytedance:webpage:description" content="把每一个值得纪念的日子，都数着过 —— 相伴的第几天，下一个约定还有多久。">
+<meta property="bytedance:webpage:image" content="https://99-beta-rose.vercel.app/assets/og-cover.jpg">
+
+<!-- ▼ SEO / 社交分享（由 .scratch/inject_meta.js 生成，勿手改） -->
+<link rel="canonical" href="https://99-beta-rose.vercel.app/days.html">
+<meta name="theme-color" content="#0e0a1a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f3ef" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="致下雨天">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="纪念日 · 致下雨天">
+<meta property="og:description" content="把每一个值得纪念的日子，都数着过 —— 相伴的第几天，下一个约定还有多久。">
+<meta property="og:url" content="https://99-beta-rose.vercel.app/days.html">
+<meta property="og:image" content="https://99-beta-rose.vercel.app/assets/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="纪念日 · 致下雨天">
+<meta name="twitter:description" content="把每一个值得纪念的日子，都数着过 —— 相伴的第几天，下一个约定还有多久。">
+<meta name="twitter:image" content="https://99-beta-rose.vercel.app/assets/og-cover.jpg">
+<meta name="baidu-site-verification" content="">
+<meta http-equiv="Cache-Control" content="public, max-age=3600">
+<meta name="wechat:vertical" content="portrait">
+<meta property="bytedance:webpage:title" content="纪念日 · 致下雨天">
+<meta property="bytedance:webpage:description" content="把每一个值得纪念的日子，都数着过 —— 相伴的第几天，下一个约定还有多久。">
+<meta property="bytedance:webpage:image" content="https://99-beta-rose.vercel.app/assets/og-cover.jpg">
+
+
 <link rel="preconnect" href="https://fonts.googleapis.cn">
 <link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin>
 <link href="https://fonts.googleapis.cn/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/fonts/lxgw/lxgw.css"><!-- 霞鹜文楷·本地子集 253KB，替代 19.7MB CDN 全量包 -->
 <link rel="stylesheet" href="assets/css/main.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff6f8d' d='M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z'/%3E%3C/svg%3E">
 </head>
@@ -35,14 +88,15 @@
     <div class="ring-wrap rv">
       <div class="ring">
         <svg viewBox="0 0 200 200">
+          <!-- 走 CSS 变量，切浅色主题时进度环跟着换色（曾写死 #ff6f8d/#f5c56b/#9d7bff） -->
           <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#ff6f8d"/><stop offset="55%" stop-color="#f5c56b"/>
-            <stop offset="100%" stop-color="#9d7bff"/>
+            <stop offset="0%" stop-color="var(--rose)"/><stop offset="55%" stop-color="var(--gold)"/>
+            <stop offset="100%" stop-color="var(--violet)"/>
           </linearGradient></defs>
           <circle class="trk" cx="100" cy="100" r="92"/>
           <circle class="val" id="ringVal" cx="100" cy="100" r="92"/>
         </svg>
-        <div class="mid"><b id="ringDay">0</b><span>DAYS TOGETHER</span></div>
+        <div class="mid"><b id="ringDay" data-days>0</b><span>DAYS TOGETHER</span></div>
       </div>
       <div style="text-align:center;color:var(--tx-2)">
         距离我们的<b style="color:var(--rose)">一周年</b>还有
@@ -140,14 +194,14 @@ document.addEventListener('DOMContentLoaded', function () {
   /* type: count = 已过天数；date = 固定日期；annual = 每年循环 */
   var LIST = [
     { ic: 'heart', t: '在一起',        en: 'Since 2026.05.05',  type: 'count' },
-    { ic: 'star',  t: '99 天纪念日',   en: '2026.08.12',        date: [2026, 7, 12] },
+    { ic: 'star',  t: '99 天之约',     en: 'Day 99',            date: [2026, 7, 11] },
     { ic: 'cam',   t: '第一次约会',    en: 'Every 05.17',       annual: [5, 17] },
     { ic: 'sun',   t: '下一个 520',    en: 'I Love You',        annual: [5, 20] },
     { ic: 'cake',  t: '我的生日',      en: 'Every 03.27',       annual: [3, 27] },
     { ic: 'gift',  t: '她的生日',      en: 'Every 04.09',       annual: [4, 9] },
     { ic: 'tree',  t: '我们的平安夜',  en: 'Christmas Eve',     annual: [12, 24] },
-    { ic: 'ring',  t: '一周年',        en: '2027.05.05',        date: [2027, 4, 5] },
-    { ic: 'moon',  t: '999 天之约',    en: '2029.01.28',        date: [2029, 0, 28] }
+    { ic: 'ring',  t: '一周年',        en: 'First Anniversary', date: [2027, 4, 5] },
+    { ic: 'moon',  t: '999 天之约',    en: 'Day 999',           date: [2029, 0, 27] }
   ];
 
   function nextAnnual(m, d) {
