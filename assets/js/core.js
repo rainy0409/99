@@ -75,7 +75,7 @@ const has = n => FX.indexOf(n) > -1;
 /* ═══════════ 1. 注入全站外壳 ═══════════ */
 function buildChrome() {
   const head =
-    '<div class="wash"></div>' +
+    /* .wash removed — 用户反馈：每个页面有淡白色椭圆，已移除 */
     '<canvas id="space"></canvas>' +
     '<canvas id="stars"></canvas>' +
     '<canvas id="meteor"></canvas>' +
@@ -85,7 +85,10 @@ function buildChrome() {
     '<div class="grain"></div>' +
     '<div id="bar"></div>' +
     '<div id="cur"></div><div id="curDot"></div><div id="glow"></div>' +
-    '<canvas id="dust"></canvas>' +
+    /* ⚠ letter.html 自行声明了 #dust（信纸尘埃），这里不再重复注入。
+       若其他页面也需要本地 #dust，统一走此注入（条件判断）。 */
+    (!document.getElementById('dust') ? '<canvas id="dust"></canvas>\n' : '') +
+    '<canvas id="raincursor"></canvas>' +
     '<div id="trans"><div class="sheet"></div><div class="mark">' + HEART_SVG + '</div></div>' +
     '<nav id="nav">' +
       '<a href="index.html" class="brand" data-cur>' +
@@ -133,7 +136,7 @@ function buildChrome() {
       '<div class="ptime"><span id="pnow">0:00</span><span id="ptot">0:00</span></div></div>' +
       '<button id="pp" data-cur title="上一首"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 5L9 12L18 19ZM6 5h2.4v14H6z"/></svg></button>' +
       '<button id="pn" data-cur title="下一首"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5l9 7-9 7zM16 5h2.4v14H16z"/></svg></button>' +
-      '<button id="rain" data-cur title="雨声 · 点我开始 / 停止下雨"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5A4.2 4.2 0 0 1 7 5.2 5.4 5.4 0 0 1 17.4 6.1 3.6 3.6 0 0 1 17.4 13.5"/><path d="M8 17l-1 2.6M12 17l-1 2.6M16 17l-1 2.6"/></svg></button>' +
+      '<button id="rainBtn" data-cur title="雨声 · 点我开始 / 停止下雨"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5A4.2 4.2 0 0 1 7 5.2 5.4 5.4 0 0 1 17.4 6.1 3.6 3.6 0 0 1 17.4 13.5"/><path d="M8 17l-1 2.6M12 17l-1 2.6M16 17l-1 2.6"/></svg></button>' +
       '<div id="spec"></div>' +
       '<audio id="bgm" preload="metadata"></audio>' +
     '</div>' +
@@ -141,16 +144,35 @@ function buildChrome() {
     '<button id="share" data-cur title="生成分享卡片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>' +
     '<div id="shareM"><div class="sm-box"><canvas id="scv" width="1080" height="1350"></canvas>' +
       '<div class="sm-bar"><button id="scSave" class="btn solid" data-cur>保存图片</button>' +
-      '<button id="scClose" class="btn" data-cur>关闭</button></div></div></div>';
+      '<button id="scInstall" class="btn" data-cur>装到身边</button>' +
+      '<button id="scClose" class="btn" data-cur>关闭</button></div></div></div>' +
+    '<div id="egg" aria-hidden="true">' +
+      '<div class="egg-glow"></div>' +
+      '<div class="egg-stage">' +
+        '<svg class="egg-boat" viewBox="0 0 240 200" fill="none">' +
+          '<path class="boat-body" d="M30 132 L210 132 L176 168 L64 168 Z" fill="rgba(255,255,255,.10)" stroke="var(--gold)" stroke-width="2"/>' +
+          '<path class="boat-sail" d="M120 44 L120 128 L182 128 Z" fill="rgba(245,197,107,.16)" stroke="var(--gold)" stroke-width="2"/>' +
+          '<path class="boat-flag" d="M120 44 L150 56 L120 68 Z" fill="var(--rose)"/>' +
+          '<rect class="boat-letter" x="78" y="92" width="84" height="52" rx="6" fill="rgba(255,255,255,.92)" stroke="var(--rose)" stroke-width="1.5"/>' +
+          '<path class="boat-seal" d="M120 106 c-9 0 -13 7 -13 12 c0 5 6 9 13 9 c7 0 13 -4 13 -9 c0 -5 -4 -12 -13 -12 Z" fill="var(--rose)"/>' +
+        '</svg>' +
+        '<div class="egg-card">' +
+          '<div class="egg-cap"></div>' +
+          '<div class="egg-poem"></div>' +
+          '<button class="egg-x btn solid" data-cur><span>收下这份祝福</span></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   while (tail.firstChild) document.body.appendChild(tail.firstChild);
   initShare();
 }
 
 /* ───────── 分享卡片（canvas 绘制 + 下载） ───────── */
-function daysTogether() {
-  var s = new Date(2026, 4, 5); // Since 2026.05.05
-  return Math.max(0, Math.floor((Date.now() - s) / 86400000));
-}
+/* ⚠ 这里曾经重复声明过一个 daysTogether()（Math.floor 版）。
+   函数声明会提升并覆盖同作用域的前一个同名声明，导致文件顶部那个
+   「第 N 天」真源被这个旧版整体覆盖 —— 连 window.SITE.daysTogether
+   拿到的都是旧版，全站天数统一少 1（第 94 天显示 93）。
+   已删除，全站只保留顶部唯一真源。切勿再重复声明。 */
 function roundRect(c, x, y, w, h, r) {
   c.beginPath();
   c.moveTo(x + r, y);
@@ -186,10 +208,22 @@ function drawShareCard() {
   c.fillText('TO THE RAINY DAY', W / 2, 258);
   c.fillStyle = '#ff6f8d'; c.font = '44px serif';
   c.fillText('♥', W / 2, 330);
+  // 照片：从全站唯一真源 PHOTOS 里抽一张（连带它的故事文案）
+  /* ⚠ 这里曾经写死过第二份照片清单，扩展名与真源漂移，26 张里有 17 张路径是错的，
+     分享卡约 65% 概率画出一张没有照片的空卡。已改为直接读 PHOTOS，永不再漂移。 */
+  var pool = (window.SITE && window.SITE.PHOTOS) || [];
+  var shot = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+
   // 文案（先画，照片异步补）
   var days = daysTogether();
   function footer() {
     c.textAlign = 'center';
+    // 照片下方压一行这张照片自己的故事（比一句通用标语更有分量）
+    if (shot && shot[1]) {
+      c.fillStyle = 'rgba(242,236,246,.72)';
+      c.font = 'italic 400 32px "Noto Serif SC", serif';
+      c.fillText('「' + shot[1] + '」', W / 2, 1082);
+    }
     c.fillStyle = '#ff6f8d'; c.font = '600 66px "Noto Serif SC", serif';
     c.fillText('我们在一起 ' + days + ' 天', W / 2, 1130);
     c.fillStyle = 'rgba(242,236,246,.75)'; c.font = '400 36px "Noto Serif SC", serif';
@@ -201,24 +235,30 @@ function drawShareCard() {
   }
   footer();
   // 照片（圆角封面裁切）
-  var photos = ['photo01.png', 'photo02.png', 'photo03.png', 'photo04.png', 'photo05.png',
-    'photo06.png', 'photo07.png', 'photo08.png', 'photo09.png', 'photo10.png', 'photo11.png',
-    'photo12.png', 'photo13.jpg', 'photo14.jpg', 'photo15.jpg', 'photo16.png', 'photo17.png',
-    'photo18.png', 'photo19.png', 'photo20.png', 'photo21.png', 'photo22.png', 'photo23.jpg',
-    'photo24.jpg', 'photo25.jpg', 'photo26.jpg'];
-  var pick = photos[Math.floor(Math.random() * photos.length)];
+  if (!shot) return;
+  var PW = 640, PH = 640, PX = (W - PW) / 2, PY = 400;
   var img = new Image();
   img.onload = function () {
-    var pw = 640, ph = 640, px = (W - pw) / 2, py = 400;
-    c.save(); roundRect(c, px, py, pw, ph, 30); c.clip();
-    var ir = img.width / img.height, dr = pw / ph, sw, sh, sx, sy;
+    c.save(); roundRect(c, PX, PY, PW, PH, 30); c.clip();
+    var ir = img.width / img.height, dr = PW / PH, sw, sh, sx, sy;
     if (ir > dr) { sh = img.height; sw = sh * dr; sx = (img.width - sw) / 2; sy = 0; }
     else { sw = img.width; sh = sw / dr; sx = 0; sy = (img.height - sh) / 2; }
-    c.drawImage(img, sx, sy, sw, sh, px, py, pw, ph);
+    c.drawImage(img, sx, sy, sw, sh, PX, PY, PW, PH);
     c.restore();
-    c.strokeStyle = 'rgba(255,111,141,.65)'; c.lineWidth = 3; roundRect(c, px, py, pw, ph, 30); c.stroke();
+    c.strokeStyle = 'rgba(255,111,141,.65)'; c.lineWidth = 3; roundRect(c, PX, PY, PW, PH, 30); c.stroke();
   };
-  img.src = 'assets/photos/' + pick;
+  // 单张取不到时不留空洞：画一个占位心，卡片依旧成立
+  img.onerror = function () {
+    c.save(); roundRect(c, PX, PY, PW, PH, 30); c.clip();
+    var g2 = c.createLinearGradient(PX, PY, PX + PW, PY + PH);
+    g2.addColorStop(0, 'rgba(157,123,255,.28)'); g2.addColorStop(1, 'rgba(255,111,141,.28)');
+    c.fillStyle = g2; c.fillRect(PX, PY, PW, PH);
+    c.fillStyle = 'rgba(255,111,141,.55)'; c.font = '220px serif'; c.textAlign = 'center';
+    c.fillText('♥', W / 2, PY + PH / 2 + 78);
+    c.restore();
+    c.strokeStyle = 'rgba(255,111,141,.65)'; c.lineWidth = 3; roundRect(c, PX, PY, PW, PH, 30); c.stroke();
+  };
+  img.src = shot[0];
 }
 function initShare() {
   var btn = document.getElementById('share');
@@ -243,6 +283,22 @@ function initShare() {
       setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
     }, 'image/png');
   });
+  /* PWA 安装：仅当浏览器抛出可安装事件时显示按钮 */
+  var installBtn = document.getElementById('scInstall');
+  if (installBtn) {
+    var hide = function () { installBtn.style.display = 'none'; };
+    if (!window.__rdInstallPrompt) { hide(); }
+    window.addEventListener('rd:install-ready', function () { installBtn.style.display = ''; });
+    installBtn.addEventListener('click', function () {
+      if (!window.__rdInstallPrompt) return;
+      var p = window.__rdInstallPrompt;
+      p.prompt();
+      p.userChoice.then(function () {
+        window.__rdInstallPrompt = null;
+        hide();
+      }).catch(function () {});
+    });
+  }
 }
 
 /* ═══════════ 2. 主题 ═══════════ */
@@ -358,11 +414,15 @@ function initTransition() {
   });
 }
 
-/* ═══════════ 4. 光标 ═══════════ */
+/* ═══════════ 4. 光标 ═══════════
+   自定义光标：#cur（主圆）+ #curDot（精确跟随点，截图里看到的绿点）+ #glow（光晕拖尾）
+   优化：光标点默认半透明，悬停交互元素时才亮起；tick 走 rdRAF 全局调度。 */
 function initCursor() {
   if (TOUCH) return;
   const c = $('#cur'), d = $('#curDot'), g = $('#glow');
   let mx = innerWidth / 2, my = innerHeight / 2, cx = mx, cy = my, gx = mx, gy = my;
+  /* 光标点默认低可见度（不再像之前那样醒目地画个绿圆点在左上角） */
+  if (d) d.style.opacity = '.35';
   addEventListener('mousemove', e => {
     mx = e.clientX; my = e.clientY;
     d.style.transform = 'translate(' + (mx - 2.5) + 'px,' + (my - 2.5) + 'px)';
@@ -372,7 +432,7 @@ function initCursor() {
     gx += (mx - gx) * 0.06; gy += (my - gy) * 0.06;
     c.style.transform = 'translate(' + (cx - 17) + 'px,' + (cy - 17) + 'px)';
     g.style.left = gx + 'px'; g.style.top = gy + 'px';
-    requestAnimationFrame(tick);
+    rdRAF(tick);
   })();
   const grow = on => c.classList.toggle('grow', on);
   document.addEventListener('mouseover', e => {
@@ -508,18 +568,58 @@ function initTilt() {
   });
 }
 
-/* ═══════════ 8. 背景性能调度 ═══════════
-   固定层背景始终可见，所以不能直接停；策略：
-   · 首屏之外 → 降频到 ~30fps
-   · 标签页隐藏 → 完全停
-   · 粒子爱心属于首屏元素 → 随滚动淡出并停算            */
+/* ═══════════ 8. 全局性能调度 ═══════════
+   站点同时跑 8+ 个 rAF 循环（雨幕/星空/极光/心形粒子/星尘跟随/光标雨痕/
+   星河漫游/Three.js 宇宙），每个都独立 requestAnimationFrame → 每帧 8+ 次
+   回调调度开销 + GPU 上下文切换 = 卡顿主因。
+
+   策略：
+   · 标签页隐藏 → RD_PAUSED=true，所有循环在入口处 return 且不再 re-schedule rAF，
+     切回时统一 resume（比「每帧检查 hidden 再空转一次」省 100% CPU）
+   · 移动端 → 全局降频到 ~30fps（帧计数器跳帧）
+   · 首屏外 → lowPower 模式进一步降频
+   · 各循环用 rdRAF(fn) 替代裸 requestAnimationFrame，自动服从全局调度              */
 let lowPower = false, frameN = 0;
+let RD_PAUSED = false;                          // 全局暂停标志
+const _rafQueue = new Set();                    // 注册的所有循环函数
+
 function skipFrame() {
-  if (document.hidden) return true;
+  if (RD_PAUSED) return true;                   // 全局暂停优先级最高
+  if (document.hidden) { RD_PAUSED = true; return true; }
   frameN++;
-  if (MOBILE && (frameN & 1)) return true;        // 移动端：保护层叠画布，整体降到 ~30fps
+  if (MOBILE && (frameN & 1)) return true;
   return lowPower && (frameN & 1) === 1;
 }
+
+/* 替代裸 requestAnimationFrame：注册到全局队列，暂停时自动不续订。
+   用法：把 requestAnimationFrame(loop) 换成 rdRAF(loop) */
+function rdRAF(fn) {
+  _rafQueue.add(fn);
+  function tick(t) {
+    if (RD_PAUSED) { _rafQueue.delete(fn); return; } // 暂停 → 退出，等 resume 重注册
+    fn(t);
+    if (_rafQueue.has(fn)) requestAnimationFrame(tick); // fn 内可能自行注销
+  }
+  requestAnimationFrame(tick);
+}
+
+/* 统一恢复：visibilitychange → visible 时重启动所有已注册循环 */
+function _resumeAll() {
+  if (!document.hidden && RD_PAUSED) {
+    RD_PAUSED = false;
+    frameN = 0;
+    // 重新注册所有之前被暂停时注销的循环
+    _rafQueue.forEach(fn => requestAnimationFrame(function tick(t) {
+      if (RD_PAUSED) return;
+      fn(t);
+      if (_rafQueue.has(fn)) requestAnimationFrame(tick);
+    }));
+  } else if (document.hidden && !RD_PAUSED) {
+    RD_PAUSED = true;                            // 首次隐藏 → 标记暂停（各循环下次 tick 自动退出）
+  }
+}
+document.addEventListener('visibilitychange', _resumeAll);
+
 function initVisibility() {
   const upd = () => { lowPower = scrollY > innerHeight * 0.9; };
   addEventListener('scroll', upd, { passive: true });
@@ -578,7 +678,7 @@ function initRain() {
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     buildDrops();
     far = []; near = [];
-    const nf = Math.round(W / (MOBILE ? 22 : 13)), nn = Math.round(W / (MOBILE ? 120 : 64));
+    const nf = Math.round(W / (MOBILE ? 28 : 18)), nn = Math.round(W / (MOBILE ? 140 : 80));
     for (let i = 0; i < nf; i++) far.push(mk(false));
     for (let i = 0; i < nn; i++) near.push(mk(true));
   }
@@ -598,7 +698,7 @@ function initRain() {
     c.globalAlpha = 1;
   }
   (function loop() {
-    requestAnimationFrame(loop);
+    rdRAF(loop);
     if (skipFrame()) return;
     c.clearRect(0, 0, W, H);
     const dark = document.documentElement.dataset.theme === 'dark';
@@ -698,7 +798,7 @@ function initStars() {
   }
   setTimeout(meteor, 1800);
   (function loop() {
-    requestAnimationFrame(loop);
+    rdRAF(loop);
     if (document.hidden) return;
     const dark = document.documentElement.dataset.theme === 'dark';
     c.clearRect(0, 0, W, H);
@@ -1015,7 +1115,7 @@ function initMusic() {
     }
     return true;
   }
-  const rainBtn = $('#rain');
+  const rainBtn = $('#rainBtn');
   if (rainBtn) {
     rainBtn.addEventListener('click', function () {
       const ok = setRain(!rainOn);
@@ -1050,7 +1150,7 @@ function initMusic() {
   let buf = null, beatSmooth = 0;
   const beatGlow = document.getElementById('beatGlow');
   (function draw() {
-    requestAnimationFrame(draw);
+    rdRAF(draw);
     if (document.hidden) return;
     const on = (mode === 'real' && !bgm.paused);
     if (!on) {
@@ -1141,8 +1241,9 @@ window.rdPetals = function (n) {
 };
 /* 逐字拆分 */
 window.rdSplit = function (el) {
-  if (!el || el.dataset.done) return;
-  el.dataset.done = '1';
+  /* 与 initHeroTitle() 共用同一把锁：两边曾各用各的标记，同一个标题被拆两次。 */
+  if (!el || el.dataset.done || el.dataset.split) return;
+  el.dataset.done = '1'; el.dataset.split = '1';
   const txt = el.textContent;
   el.textContent = '';
   txt.split('').forEach((ch, i) => {
@@ -1175,6 +1276,26 @@ window.rdClock = function (map) {
   tick(); setInterval(tick, 1000);
   return daysTogether();
 };
+
+/* ───────── 跨零点自动翻天（全站） ─────────
+   页面挂着过夜时，天数不该停在昨天。每 30s 比一次「年月日」，
+   一旦跨日就刷新所有天数位（#tD / #ringDay / [data-days]）并广播
+   rd:daychange，各页可自行监听做更精细的联动（如进度环重绘）。 */
+(function watchDayRollover() {
+  const key = () => { const n = new Date(); return n.getFullYear() + '-' + n.getMonth() + '-' + n.getDate(); };
+  let last = key();
+  setInterval(() => {
+    const now = key();
+    if (now === last) return;
+    last = now;
+    const days = daysTogether();
+    ['tD', 'ringDay'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = days; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-days]'), el => { el.textContent = days; });
+    const ring = document.querySelector('.tring-svg .val');
+    if (ring) { const C = 2 * Math.PI * 19; ring.style.strokeDashoffset = C * (1 - Math.min(1, days / 365)); }
+    document.dispatchEvent(new CustomEvent('rd:daychange', { detail: { days } }));
+  }, 30000);
+})();
 
 /* 文字解码 / 打乱 */
 window.rdScramble = function (el, text, duration) {
@@ -1257,7 +1378,7 @@ function initStardust() {
   document.addEventListener('mouseover', e => { hovering = !!(e.target.closest && e.target.closest('a,button,[data-cur],.gi,.pane,.dc')); });
   document.addEventListener('mouseout',  e => { if(e.target.closest && e.target.closest('a,button,[data-cur],.gi,.pane,.dc')) hovering = false; });
   (function loop(){
-    requestAnimationFrame(loop);
+    rdRAF(loop);
     if(document.hidden) return;
     c.clearRect(0, 0, W, H);
     for(let i = parts.length-1; i >= 0; i--){
@@ -1270,7 +1391,7 @@ function initStardust() {
       c.beginPath(); c.arc(p.x, p.y, p.r, 0, 6.283); c.fill();
     }
     c.globalAlpha = 1;
-    if(parts.length > 150) parts.splice(0, parts.length - 150);   // 性能上限
+    if(parts.length > 80) parts.splice(0, parts.length - 80);   // 性能上限（原150，降配后更流畅）
   })();
 }
 
@@ -1341,6 +1462,123 @@ function initTimeline() {
   } catch (e) { sec.style.overflowX = 'auto'; sec.classList.remove('pinned'); sec.dataset.tl = '1'; }
 }
 
+/* ═══════════ 纪念日彩蛋（#126）：里程碑日的纸船祝福 ═══════════
+   100/200/365/520/999 天，一艘纸船载着信漂过雨幕，落下专属诗句。
+   ?egg=N 可强制预览（便于验证，不影响真实触发）。每日仅触发一次。 */
+const MILE = {
+  100: { cap: '第 100 天', poem: '一百天，是刚刚好的开始。\n往后的每一天，都算赚到的。' },
+  200: { cap: '第 200 天', poem: '两百天，雨落了两百回，\n每一回都恰好落在你身边。' },
+  365: { cap: '在一起一周年', poem: '地球绕太阳走了一圈，\n我的世界绕了你一圈又一圈。' },
+  520: { cap: '第 520 天', poem: '520，一句没说腻的话：\n「我愿意陪你下每一场雨。」' },
+  999: { cap: '第 999 天', poem: '差一天就圆满，\n可我想把圆满，留给我们的一辈子。' }
+};
+function initEgg() {
+  const el = document.getElementById('egg');
+  if (!el) return;
+  let trigger = null;
+  const q = new URLSearchParams(location.search).get('egg');
+  if (q && MILE[+q]) trigger = +q;
+  else {
+    const d = window.SITE.daysTogether();
+    if (MILE[d]) {
+      const key = 'rd-egg-' + new Date().toISOString().slice(0, 10) + '-' + d;
+      if (!localStorage.getItem(key)) { trigger = d; try { localStorage.setItem(key, '1'); } catch (e) {} }
+    }
+  }
+  if (trigger) showEgg(trigger);
+}
+function showEgg(n) {
+  const el = document.getElementById('egg');
+  if (!el) return;
+  const m = MILE[n];
+  el.querySelector('.egg-cap').textContent = m.cap;
+  el.querySelector('.egg-poem').textContent = m.poem;
+  el.classList.add('on');
+  document.body.classList.add('egg-gold');
+  setTimeout(function () { el.classList.add('show'); }, 1300);
+  const close = function () {
+    el.classList.remove('on', 'show');
+    document.body.classList.remove('egg-gold');
+  };
+  el.querySelector('.egg-x').addEventListener('click', close);
+  el.addEventListener('click', function (e) { if (e.target === el) close(); });
+}
+
+/* ═══════════ 光标雨痕（#128）：光标处凝结水珠，受重力下落，触底涟漪 ═══════════ */
+function initCursorRain() {
+  if (TOUCH || REDUCED) return;
+  const cv = document.getElementById('raincursor'); if (!cv) return;
+  const c = cv.getContext('2d');
+  let W, H, dpr;
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  size(); addEventListener('resize', size);
+  const drops = [], ripples = [];
+  let last = 0, lx = innerWidth / 2, ly = innerHeight / 2;
+  addEventListener('mousemove', e => {
+    const now = performance.now();
+    if (now - last < 58) return;
+    const dx = e.clientX - lx, dy = e.clientY - ly;
+    if (dx * dx + dy * dy < 380) return;     // 移动够远才落珠，避免糊成一片
+    last = now; lx = e.clientX; ly = e.clientY;
+    drops.push({
+      x: e.clientX, y: e.clientY,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: 0.35 + Math.random() * 0.5,
+      r: 1.5 + Math.random() * 1.9, life: 1
+    });
+  }, { passive: true });
+  const floor = () => H - 4;
+  (function loop() {
+    rdRAF(loop);
+    if (document.hidden) return;
+    c.clearRect(0, 0, W, H);
+    const dark = document.documentElement.dataset.theme === 'dark';
+    const col = dark ? '198,218,255' : '150,120,175';
+    for (let i = drops.length - 1; i >= 0; i--) {
+      const d = drops[i];
+      d.vy += 0.11; d.x += d.vx; d.y += d.vy;
+      c.globalAlpha = 0.5 * d.life;
+      c.strokeStyle = 'rgba(' + col + ',1)';
+      c.lineWidth = d.r * 0.7; c.lineCap = 'round';
+      c.beginPath();
+      c.moveTo(d.x, d.y);
+      c.lineTo(d.x - d.vx * 1.4, d.y - d.vy * 1.4 - d.r * 2.2);
+      c.stroke();
+      if (d.y >= floor()) {
+        ripples.push({ x: d.x, y: floor(), r: 1, a: 0.5, col: col });
+        drops.splice(i, 1);
+      }
+    }
+    c.globalAlpha = 1;
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const rp = ripples[i]; rp.r += 0.85; rp.a -= 0.02;
+      if (rp.a <= 0) { ripples.splice(i, 1); continue; }
+      c.strokeStyle = 'rgba(' + rp.col + ',' + rp.a.toFixed(3) + ')';
+      c.lineWidth = 1;
+      c.beginPath(); c.ellipse(rp.x, rp.y, rp.r, rp.r * 0.32, 0, Math.PI, 0); c.stroke();
+    }
+    if (drops.length > 60) drops.splice(0, drops.length - 60);  // 原130，降配
+  })();
+}
+
+/* ═══════════ PWA 安装捕获（#130） ═══════════ */
+window.addEventListener('beforeinstallprompt', function (e) {
+  e.preventDefault();
+  window.__rdInstallPrompt = e;
+  window.dispatchEvent(new Event('rd:install-ready'));
+});
+window.addEventListener('appinstalled', function () {
+  window.__rdInstallPrompt = null;
+  const b = document.getElementById('scInstall');
+  if (b) b.style.display = 'none';
+});
+
 /* ═══════════ BOOT ═══════════ */
 buildChrome();
 initTheme();
@@ -1384,7 +1622,9 @@ function initGsap() {
   }
   if (gsapTried) return; gsapTried = true;
   /* 兜底：本地文件缺失时再回退 CDN（保持零依赖站点的容错性） */
-  const base = 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/';
+  /* 用 jsdelivr 的国内镜像：原 cdn.jsdelivr.net 在国内经常解析失败/超时，
+     兜底反而会卡满 4 秒保险闸。 */
+  const base = 'https://cdn.jsdmirror.com/npm/gsap@3.12.5/dist/';
   Promise.all([loadScript(base + 'gsap.min.js'), loadScript(base + 'ScrollTrigger.min.js')])
     .then(() => {
       if (window.gsap && window.ScrollTrigger) { gsap.registerPlugin(ScrollTrigger); applyGsap(); }
@@ -1395,7 +1635,7 @@ function initGsap() {
 /* 首页标题拆字（同步，避免 GSAP 加载前闪烁）*/
 function initHeroTitle() {
   const t = document.getElementById('hTitle');
-  if (!t || t.dataset.split) return;
+  if (!t || t.dataset.split || t.dataset.done) return;
   if (REDUCED || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const txt = t.textContent;
   t.textContent = '';
@@ -1488,6 +1728,8 @@ function bootDom() {
   initGsap();
   initTitleBurst();
   bindEnterGate();
+  initCursorRain();      // 光标雨痕（自判桌面/减弱动效）
+  initEgg();             // 纪念日彩蛋（自判里程碑日 / ?egg= 预览）
   /* 下列装饰画布较重：仅在非轻量模式（桌面 + 未要求减弱动效）下启用，
      移动端 / 减弱动效偏好下跳过，进一步压低卡顿。 */
   if (LITE) return;
@@ -1539,7 +1781,7 @@ function initMeteor() {
   }
   setTimeout(spawn, 1400);
   (function loop() {
-    requestAnimationFrame(loop);
+    rdRAF(loop);
     if (document.hidden || !dark()) { c.clearRect(0, 0, W, H); return; }
     c.clearRect(0, 0, W, H);
     for (let i = list.length - 1; i >= 0; i--) {
@@ -1582,7 +1824,7 @@ function initSakura() {
   }
   size(); addEventListener('resize', size);
 
-  const N = innerWidth < 760 ? 14 : 26;
+  const N = innerWidth < 760 ? 10 : 18;               // 原26/14，降配后花瓣更轻盈不拥挤
   const petals = [];
   function reset(p, top) {
     p.x = Math.random() * W;
@@ -1625,7 +1867,7 @@ function initSakura() {
 
   let last = 0;
   (function loop(ts) {
-    requestAnimationFrame(loop);
+    rdRAF(loop);
     if (document.hidden) return;
     if (ts - last < 24) return;                // ~40fps 足够柔美，省电
     last = ts;
