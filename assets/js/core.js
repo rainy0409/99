@@ -133,11 +133,116 @@ function buildChrome() {
       '<div class="ptime"><span id="pnow">0:00</span><span id="ptot">0:00</span></div></div>' +
       '<button id="pp" data-cur title="上一首"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 5L9 12L18 19ZM6 5h2.4v14H6z"/></svg></button>' +
       '<button id="pn" data-cur title="下一首"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5l9 7-9 7zM16 5h2.4v14H16z"/></svg></button>' +
+      '<button id="rain" data-cur title="雨声 · 点我开始 / 停止下雨"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5A4.2 4.2 0 0 1 7 5.2 5.4 5.4 0 0 1 17.4 6.1 3.6 3.6 0 0 1 17.4 13.5"/><path d="M8 17l-1 2.6M12 17l-1 2.6M16 17l-1 2.6"/></svg></button>' +
       '<div id="spec"></div>' +
       '<audio id="bgm" preload="metadata"></audio>' +
     '</div>' +
-    '<button id="top" data-cur><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>';
+    '<button id="top" data-cur><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>' +
+    '<button id="share" data-cur title="生成分享卡片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>' +
+    '<div id="shareM"><div class="sm-box"><canvas id="scv" width="1080" height="1350"></canvas>' +
+      '<div class="sm-bar"><button id="scSave" class="btn solid" data-cur>保存图片</button>' +
+      '<button id="scClose" class="btn" data-cur>关闭</button></div></div></div>';
   while (tail.firstChild) document.body.appendChild(tail.firstChild);
+  initShare();
+}
+
+/* ───────── 分享卡片（canvas 绘制 + 下载） ───────── */
+function daysTogether() {
+  var s = new Date(2026, 4, 5); // Since 2026.05.05
+  return Math.max(0, Math.floor((Date.now() - s) / 86400000));
+}
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+}
+function drawShareCard() {
+  var cv = document.getElementById('scv'); if (!cv) return;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height;
+  // 背景渐变
+  var g = c.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#1a0f24'); g.addColorStop(.5, '#2a1530'); g.addColorStop(1, '#0e0a1a');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // 柔光
+  function glow(x, y, r, col, a) {
+    var rg = c.createRadialGradient(x, y, 0, x, y, r);
+    rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(0,0,0,0)');
+    c.globalAlpha = a; c.fillStyle = rg; c.beginPath(); c.arc(x, y, r, 0, 6.283); c.fill(); c.globalAlpha = 1;
+  }
+  glow(W * .2, H * .18, W * .5, 'rgba(157,123,255,.5)', .5);
+  glow(W * .85, H * .34, W * .45, 'rgba(255,111,141,.45)', .45);
+  glow(W * .5, H * .95, W * .6, 'rgba(245,197,107,.35)', .4);
+  // 标题
+  c.textAlign = 'center';
+  c.fillStyle = '#f2ecf6';
+  c.font = '600 86px "Noto Serif SC", serif';
+  c.fillText('致下雨天', W / 2, 210);
+  c.fillStyle = 'rgba(242,236,246,.6)';
+  c.font = '400 30px "Cormorant Garamond", serif';
+  c.fillText('TO THE RAINY DAY', W / 2, 258);
+  c.fillStyle = '#ff6f8d'; c.font = '44px serif';
+  c.fillText('♥', W / 2, 330);
+  // 文案（先画，照片异步补）
+  var days = daysTogether();
+  function footer() {
+    c.textAlign = 'center';
+    c.fillStyle = '#ff6f8d'; c.font = '600 66px "Noto Serif SC", serif';
+    c.fillText('我们在一起 ' + days + ' 天', W / 2, 1130);
+    c.fillStyle = 'rgba(242,236,246,.75)'; c.font = '400 36px "Noto Serif SC", serif';
+    c.fillText('我 ♡ 肖雨童', W / 2, 1192);
+    c.fillStyle = 'rgba(242,236,246,.5)'; c.font = '400 26px "Cormorant Garamond", serif';
+    c.fillText('SINCE 2026.05.05', W / 2, 1238);
+    c.fillStyle = 'rgba(242,236,246,.38)'; c.font = '400 24px "Noto Serif SC", serif';
+    c.fillText('致下雨天 · 我们的小宇宙', W / 2, 1286);
+  }
+  footer();
+  // 照片（圆角封面裁切）
+  var photos = ['photo01.png', 'photo02.png', 'photo03.png', 'photo04.png', 'photo05.png',
+    'photo06.png', 'photo07.png', 'photo08.png', 'photo09.png', 'photo10.png', 'photo11.png',
+    'photo12.png', 'photo13.jpg', 'photo14.jpg', 'photo15.jpg', 'photo16.png', 'photo17.png',
+    'photo18.png', 'photo19.png', 'photo20.png', 'photo21.png', 'photo22.png', 'photo23.jpg',
+    'photo24.jpg', 'photo25.jpg', 'photo26.jpg'];
+  var pick = photos[Math.floor(Math.random() * photos.length)];
+  var img = new Image();
+  img.onload = function () {
+    var pw = 640, ph = 640, px = (W - pw) / 2, py = 400;
+    c.save(); roundRect(c, px, py, pw, ph, 30); c.clip();
+    var ir = img.width / img.height, dr = pw / ph, sw, sh, sx, sy;
+    if (ir > dr) { sh = img.height; sw = sh * dr; sx = (img.width - sw) / 2; sy = 0; }
+    else { sw = img.width; sh = sw / dr; sx = 0; sy = (img.height - sh) / 2; }
+    c.drawImage(img, sx, sy, sw, sh, px, py, pw, ph);
+    c.restore();
+    c.strokeStyle = 'rgba(255,111,141,.65)'; c.lineWidth = 3; roundRect(c, px, py, pw, ph, 30); c.stroke();
+  };
+  img.src = 'assets/photos/' + pick;
+}
+function initShare() {
+  var btn = document.getElementById('share');
+  var m = document.getElementById('shareM');
+  var save = document.getElementById('scSave');
+  var close = document.getElementById('scClose');
+  if (!btn || !m) return;
+  btn.addEventListener('click', function () {
+    drawShareCard();
+    m.classList.add('on');
+  });
+  function hide() { m.classList.remove('on'); }
+  close.addEventListener('click', hide);
+  m.addEventListener('click', function (e) { if (e.target === m) hide(); });
+  if (save) save.addEventListener('click', function () {
+    var cv = document.getElementById('scv');
+    cv.toBlob(function (blob) {
+      if (!blob) return;
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = '致下雨天-分享卡片.png'; a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    }, 'image/png');
+  });
 }
 
 /* ═══════════ 2. 主题 ═══════════ */
@@ -863,6 +968,60 @@ function initMusic() {
   disc.addEventListener('click', e => { e.stopPropagation(); toggle(); });
   if (pp) pp.addEventListener('click', e => { e.stopPropagation(); loadTrack(trackIdx - 1, true); });
   if (pn) pn.addEventListener('click', e => { e.stopPropagation(); loadTrack(trackIdx + 1, true); });
+
+  /* ───────── 雨声白噪音层（Web Audio 合成，零资源） ───────── */
+  let rainAC = null, rainNodes = null, rainOn = false;
+  function buildRain() {
+    if (rainAC) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    rainAC = new AC();
+    const ctx = rainAC;
+    // 2s 粉噪缓冲（比白噪更柔，像雨幕的"沙沙"）
+    const len = (ctx.sampleRate * 2) | 0;
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) {
+      const white = Math.random() * 2 - 1;
+      last = (last + 0.02 * white) / 1.02;
+      d[i] = last * 3.2;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 380; hp.Q.value = 0.5;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600; lp.Q.value = 0.6;
+    const peak = ctx.createBiquadFilter(); peak.type = 'peaking'; peak.frequency.value = 1100; peak.gain.value = 4; peak.Q.value = 0.7;
+    const g = ctx.createGain(); g.gain.value = 0;
+    // 极慢 LFO 让雨势自然起伏
+    const lfo = ctx.createOscillator(); lfo.frequency.value = 0.08;
+    const lfoG = ctx.createGain(); lfoG.gain.value = 0.05;
+    lfo.connect(lfoG); lfoG.connect(g.gain);
+    src.connect(hp); hp.connect(lp); lp.connect(peak); peak.connect(g); g.connect(ctx.destination);
+    src.start(0); lfo.start(0);
+    rainNodes = { g };
+  }
+  function setRain(on) {
+    buildRain();
+    if (!rainAC) return false;
+    if (rainAC.state === 'suspended') rainAC.resume();
+    const g = rainNodes.g.gain, now = rainAC.currentTime;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(g.value, now);
+    if (on) { g.linearRampToValueAtTime(0.16, now + 0.8); rainOn = true; }
+    else {
+      g.linearRampToValueAtTime(0.0001, now + 0.6); rainOn = false;
+      setTimeout(function () { if (!rainOn && rainAC) rainAC.suspend(); }, 720);
+    }
+    return true;
+  }
+  const rainBtn = $('#rain');
+  if (rainBtn) {
+    rainBtn.addEventListener('click', function () {
+      const ok = setRain(!rainOn);
+      if (ok) rainBtn.classList.toggle('on', rainOn);
+    });
+  }
 
   /* 首次交互自动起播 / 跨页续播 */
   const wants = sessionStorage.getItem('rd-music') === '1';
