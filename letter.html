@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.cn">
 <link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin>
 <link href="https://fonts.googleapis.cn/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css">
 <link rel="stylesheet" href="assets/css/main.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff6f8d' d='M16 27C6 20 2 14.5 2 10.5A6.5 6.5 0 0 1 16 7 6.5 6.5 0 0 1 30 10.5C30 14.5 26 20 16 27Z'/%3E%3C/svg%3E">
 <style>
@@ -42,6 +43,10 @@
     transition:opacity .9s var(--ease),transform .9s var(--ease),border-color .5s,color .5s}
   .vt p.up{opacity:1;transform:none}
   .vt p .lead-cap{color:var(--rose);font-weight:600}
+
+  /* 情书手写质感：用霞鹜文楷(LXGW WenKai Screen)，系统楷体兜底 */
+  .vt p, .bt-t, .bt-b, .pq{font-family:var(--f-letter);letter-spacing:.04em;font-weight:400}
+  .vt p .lead-cap{font-family:var(--f-letter)}
 
   /* 落款印章 */
   .stamp{margin:var(--sp-4) auto 0;width:104px;height:104px;border-radius:50%;
