@@ -199,7 +199,7 @@ section.tight{padding:var(--sp-6) 0}
   display:grid;place-content:center;justify-items:center;gap:1.3rem;
   transition:opacity .8s var(--ease),visibility .8s;
 }
-#loader.off{opacity:0;visibility:hidden}
+#loader.off{opacity:0;visibility:hidden;pointer-events:none}
 .ld-heart{width:56px;height:56px;fill:none;stroke:var(--rose);stroke-width:1.4;
   stroke-dasharray:110;stroke-dashoffset:110;animation:draw 2.1s var(--ease) infinite}
 @keyframes draw{0%{stroke-dashoffset:110}55%{stroke-dashoffset:0}100%{stroke-dashoffset:-110}}
