@@ -575,56 +575,46 @@ function initTilt() {
 }
 
 /* ═══════════ 8. 全局性能调度 ═══════════
-   站点同时跑 8+ 个 rAF 循环（雨幕/星空/极光/心形粒子/星尘跟随/光标雨痕/
-   星河漫游/Three.js 宇宙），每个都独立 requestAnimationFrame → 每帧 8+ 次
-   回调调度开销 + GPU 上下文切换 = 卡顿主因。
-
-   策略：
-   · 标签页隐藏 → RD_PAUSED=true，所有循环在入口处 return 且不再 re-schedule rAF，
-     切回时统一 resume（比「每帧检查 hidden 再空转一次」省 100% CPU）
+   所有常驻特效循环（雨幕 / 星空 / 星尘 / 光标雨痕 / 鼠标光标 / 流星 / 樱花）统一注册到
+   一个全局 rAF 队列，由唯一的 _rdTick 每帧遍历一次。
+   早期回归版 rdRAF 既被循环体反复调用、又由自身 tick 续订 → 每帧待执行回调数量指数膨胀
+   （2^n），数百毫秒内主线程被数百万回调挤爆 → 整页卡死、滑不动。单循环调度从根上消除它。
+   · 标签页隐藏 → 停全局 rAF，切回重启（省 100% 后台 CPU）
    · 移动端 → 全局降频到 ~30fps（帧计数器跳帧）
-   · 首屏外 → lowPower 模式进一步降频
+   · 首屏外 → lowPower 进一步降频
    · 各循环用 rdRAF(fn) 替代裸 requestAnimationFrame，自动服从全局调度              */
 let lowPower = false, frameN = 0;
-let RD_PAUSED = false;                          // 全局暂停标志
 const _rafQueue = new Set();                    // 注册的所有循环函数
+let _rdRunning = false;                         // 全局 rAF 是否在跑
 
 function skipFrame() {
-  if (RD_PAUSED) return true;                   // 全局暂停优先级最高
-  if (document.hidden) { RD_PAUSED = true; return true; }
+  if (document.hidden) return true;             // 后台标签：跳过本帧绘制（_rdTick 同时停调度）
   frameN++;
-  if (MOBILE && (frameN & 1)) return true;
-  return lowPower && (frameN & 1) === 1;
+  if (MOBILE && (frameN & 1)) return true;      // 移动端半帧
+  return lowPower && (frameN & 1) === 1;        // 低功耗半帧
 }
 
-/* 替代裸 requestAnimationFrame：注册到全局队列，暂停时自动不续订。
-   用法：把 requestAnimationFrame(loop) 换成 rdRAF(loop) */
+/* 注册常驻循环。循环体内调用 rdRAF(自身) 续订（兼容旧写法），
+   真实调度由唯一全局 _rdTick 负责 —— 绝不会产生重复回调。 */
 function rdRAF(fn) {
   _rafQueue.add(fn);
-  function tick(t) {
-    if (RD_PAUSED) { _rafQueue.delete(fn); return; } // 暂停 → 退出，等 resume 重注册
-    fn(t);
-    if (_rafQueue.has(fn)) requestAnimationFrame(tick); // fn 内可能自行注销
-  }
-  requestAnimationFrame(tick);
+  if (!_rdRunning && !document.hidden) _startRAF();
 }
-
-/* 统一恢复：visibilitychange → visible 时重启动所有已注册循环 */
-function _resumeAll() {
-  if (!document.hidden && RD_PAUSED) {
-    RD_PAUSED = false;
-    frameN = 0;
-    // 重新注册所有之前被暂停时注销的循环
-    _rafQueue.forEach(fn => requestAnimationFrame(function tick(t) {
-      if (RD_PAUSED) return;
-      fn(t);
-      if (_rafQueue.has(fn)) requestAnimationFrame(tick);
-    }));
-  } else if (document.hidden && !RD_PAUSED) {
-    RD_PAUSED = true;                            // 首次隐藏 → 标记暂停（各循环下次 tick 自动退出）
-  }
+function _startRAF() {
+  _rdRunning = true;
+  requestAnimationFrame(_rdTick);
 }
-document.addEventListener('visibilitychange', _resumeAll);
+function _rdTick(t) {
+  if (document.hidden) { _rdRunning = false; return; }   // 后台自动停
+  _rafQueue.forEach(fn => {
+    try { fn(t); } catch (e) { if (!fn._err) { fn._err = 1; console.error('[rdRAF] loop error', e); } }
+  });
+  requestAnimationFrame(_rdTick);
+}
+/* 标签页切回 → 重启全局循环（隐藏期间已停） */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && !_rdRunning) _startRAF();
+});
 
 function initVisibility() {
   const upd = () => { lowPower = scrollY > innerHeight * 0.9; };
@@ -1385,6 +1375,7 @@ function initStardust() {
   document.addEventListener('mouseout',  e => { if(e.target.closest && e.target.closest('a,button,[data-cur],.gi,.pane,.dc')) hovering = false; });
   (function loop(){
     rdRAF(loop);
+    if (RD_SLOW) return;                         // 看门狗降级 → 跳过绘制
     if(document.hidden) return;
     c.clearRect(0, 0, W, H);
     for(let i = parts.length-1; i >= 0; i--){
@@ -1542,6 +1533,7 @@ function initCursorRain() {
   const floor = () => H - 4;
   (function loop() {
     rdRAF(loop);
+    if (RD_SLOW) return;                         // 看门狗降级 → 跳过绘制
     if (document.hidden) return;
     c.clearRect(0, 0, W, H);
     const dark = document.documentElement.dataset.theme === 'dark';
@@ -1812,6 +1804,7 @@ function initMeteor() {
   setTimeout(spawn, 1400);
   (function loop() {
     rdRAF(loop);
+    if (RD_SLOW) return;                         // 看门狗判定弱设备 → 跳过绘制（招牌雨幕/星空保留）
     if (document.hidden || !dark()) { c.clearRect(0, 0, W, H); return; }
     c.clearRect(0, 0, W, H);
     for (let i = list.length - 1; i >= 0; i--) {
@@ -1898,6 +1891,7 @@ function initSakura() {
   let last = 0;
   (function loop(ts) {
     rdRAF(loop);
+    if (RD_SLOW) return;                         // 看门狗降级 → 跳过绘制
     if (document.hidden) return;
     if (ts - last < 24) return;                // ~40fps 足够柔美，省电
     last = ts;
