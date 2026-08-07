@@ -1076,20 +1076,20 @@ body[data-explore="1"]{overflow:hidden;height:100vh}
 .hero-overlay .eyebrow span{width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--rose))}
 .hero-overlay .eyebrow span:last-child{background:linear-gradient(90deg,var(--rose),transparent)}
 .hero-overlay .h-title{
-  font-family:var(--f-zh);font-weight:500;line-height:1;margin:0;
-  font-size:clamp(3.2rem,12vw,8.5rem);letter-spacing:.12em;color:var(--tx);
+  font-family:var(--f-cn);font-weight:500;line-height:1;margin:0;
+  font-size:clamp(2.2rem,9vw,5.6rem);letter-spacing:.06em;color:var(--tx);
   text-shadow:0 8px 50px rgba(0,0,0,.6);
 }
 .hero-overlay .h-sub{
-  display:flex;align-items:center;gap:.7rem;margin-top:1.1rem;
-  font-family:var(--f-zh);font-size:clamp(1.1rem,3vw,1.6rem);letter-spacing:.3em;color:var(--tx-2);
+  display:flex;align-items:center;gap:.7rem;margin-top:1.6rem;
+  font-family:var(--f-cn);font-size:clamp(1rem,2.6vw,1.4rem);letter-spacing:.2em;color:var(--tx-2);
 }
 .hero-overlay .h-sub svg{width:1.3em;height:1.3em}
 .hero-overlay .since{
-  margin-top:1.3rem;font-family:var(--f-en),inherit;font-size:.82rem;
-  letter-spacing:.2em;color:var(--tx-3);
+  margin-top:1.3rem;font-family:var(--f-en),inherit;font-size:.9rem;
+  letter-spacing:.16em;color:var(--tx-3);
 }
-.hero-overlay .since b{color:var(--rose);font-weight:600}
+.hero-overlay .since b{color:var(--rose);font-weight:600;font-size:1.1em}
 /* 实时秒表：等宽数字避免逐秒抖动；冒号轻微呼吸，暗示「它还在走」 */
 .hero-overlay .since .hms{
   display:inline-flex;align-items:baseline;gap:.06em;margin-left:.55em;
@@ -1131,7 +1131,7 @@ body[data-explore="1"]{overflow:hidden;height:100vh}
 }
 @keyframes gateIn{from{opacity:0;transform:translateY(26px) scale(.97)}}
 #enterGate .eyebrow{margin-bottom:1.4rem}
-#enterGate .h-title{font-size:clamp(3rem,11vw,7.2rem)}
+#enterGate .h-title{font-size:clamp(2rem,8vw,4.8rem);letter-spacing:.06em}
 #enterGate .since{margin-top:1.3rem}
 .enter-btn{
   margin-top:2.6rem;font-size:1.02rem;letter-spacing:.22em;
@@ -1178,7 +1178,7 @@ body:not(.entered) #gxcard{
 .vcard:hover .vplay{transform:translate(-50%,-50%) scale(1.08)}
 .vcard.playing .vplay{opacity:0;pointer-events:none}
 .vcap{padding:.95rem 1.05rem;font-family:var(--f-en),inherit;font-size:.82rem;letter-spacing:.05em;color:var(--tx)}
-.vcap b{color:var(--rose);font-weight:600;font-family:var(--f-zh),inherit;margin-right:.45em}
+.vcap b{color:var(--rose);font-weight:600;font-family:var(--f-cn),inherit;margin-right:.45em}
 
 /* 图片加载失败兜底：优雅降级，不破版 */
 .img-broken{opacity:.32;filter:grayscale(.7);background:linear-gradient(135deg,#3a2540,#5a2d4a);}
