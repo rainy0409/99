@@ -68,6 +68,12 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const TOUCH = matchMedia('(hover: none)').matches || innerWidth < 981;
 const MOBILE = innerWidth < 760;   // 手机：整体降配，避免多画布叠加卡顿
 let LITE = MOBILE || REDUCED;      // 轻量模式：移动端或「减弱动效」偏好下，跳过多余装饰画布
+/* DPR 全局封顶：移动端压到 1（手机像素密度高，1 已足够清晰），桌面压到 1.5。
+   之前桌面端 WebGL 宇宙按 DPR 2.5 渲染 3200×2250 的后台缓冲，叠加 8 个 2D 画布
+   直接压垮集成显卡——这是「桌面也卡得动不了」的首要原因。 */
+const RD_DPR = Math.min(devicePixelRatio || 1, MOBILE ? 1 : 1.5);
+/* 性能看门狗写这里：FPS 采样偏低时置 true，触发装饰画布降级 */
+let RD_SLOW = false;
 const PAGE = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
 const FX = (document.body.dataset.fx || '').split(/\s+/).filter(Boolean);
 const has = n => FX.indexOf(n) > -1;
@@ -671,7 +677,7 @@ function initRain() {
     };
   }
   function size() {
-    dpr = Math.min(devicePixelRatio || 1, MOBILE ? 1.5 : 2);
+    dpr = RD_DPR;
     W = innerWidth; H = innerHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -765,7 +771,7 @@ function initStars() {
     }));
   }
   function size() {
-    dpr = Math.min(devicePixelRatio || 1, MOBILE ? 1.5 : 2);
+    dpr = RD_DPR;
     W = innerWidth; H = innerHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -1363,7 +1369,7 @@ function initStardust() {
   const cv = document.getElementById('dust'); if(!cv) return;
   const c = cv.getContext('2d');
   let W, H, dpr;
-  function size(){ dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  function size(){ dpr = RD_DPR; W = innerWidth; H = innerHeight;
     cv.width = W*dpr; cv.height = H*dpr; cv.style.width = W+'px'; cv.style.height = H+'px'; c.setTransform(dpr,0,0,dpr,0,0); }
   size(); addEventListener('resize', size);
   const parts = [], COLS = ['255,111,141','245,197,107','157,123,255','255,255,255'];
@@ -1511,7 +1517,7 @@ function initCursorRain() {
   const c = cv.getContext('2d');
   let W, H, dpr;
   function size() {
-    dpr = Math.min(devicePixelRatio || 1, 2);
+    dpr = RD_DPR;
     W = innerWidth; H = innerHeight;
     cv.width = W * dpr; cv.height = H * dpr;
     cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -1738,6 +1744,30 @@ function bootDom() {
   initTorch();
   initScrollCosmos();
   initStardust();
+  perfWatchdog();   // 启动 2.5s 后采样帧率，弱设备自动降级
+}
+
+/* ═══════════ 性能看门狗 ═══════════
+   桌面端（LITE=false）默认跑满所有装饰画布 + DPR 1.5 的 WebGL 宇宙。
+   个别弱集成显卡老笔记本虽然不是「手机」但仍带不动 → 这里实测帧率，
+   若 2.5s 内平均 < 30fps，强制降级：隐藏 4 个非招牌装饰画布，
+   并广播 rd:slow 让 3D 宇宙减载。招牌雨幕 / 夜间恒星 / WebGL 宇宙保留。 */
+function perfWatchdog() {
+  if (REDUCED) return;
+  let frames = 0; const t0 = performance.now();
+  (function tick() {
+    frames++;
+    const el = performance.now() - t0;
+    if (el < 2500) { requestAnimationFrame(tick); return; }
+    const fps = Math.round(frames / (el / 1000));
+    if (fps < 30) {
+      RD_SLOW = true; LITE = true;
+      ['dust','raincursor','meteor','sakura'].forEach(id => {
+        const cv = document.getElementById(id); if (cv) cv.style.display = 'none';
+      });
+      window.dispatchEvent(new Event('rd:slow'));
+    }
+  })();
 }
 
 /* ═══════════ SPACE：3D 宇宙接入 ═══════════ */
@@ -1762,7 +1792,7 @@ function initMeteor() {
   const c = cv.getContext('2d');
   let W, H, dpr;
   function size() {
-    dpr = Math.min(devicePixelRatio || 1, 2);
+    dpr = RD_DPR;
     W = innerWidth; H = innerHeight;
     cv.width = W * dpr; cv.height = H * dpr;
     cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -1816,7 +1846,7 @@ function initSakura() {
   const c = cv.getContext('2d');
   let W, H, dpr;
   function size() {
-    dpr = Math.min(devicePixelRatio || 1, 1.6);
+    dpr = RD_DPR;
     W = innerWidth; H = innerHeight;
     cv.width = W * dpr; cv.height = H * dpr;
     cv.style.width = W + 'px'; cv.style.height = H + 'px';
