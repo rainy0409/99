@@ -14,6 +14,14 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const TOUCH   = matchMedia('(hover: none)').matches || innerWidth < 981;
 const MOBILE  = innerWidth < 760;
 
+/* 性能看门狗（core.js）判定弱设备后广播 rd:slow：把 WebGL 宇宙像素比再压到 1，
+   叠加 core.js 隐藏 4 个装饰画布，让集成显卡老设备也回到流畅。 */
+addEventListener('rd:slow', () => {
+  if (!renderer) return;
+  DPR = Math.min(DPR, 1);
+  try { renderer.setPixelRatio(DPR); renderer.setSize(innerWidth, innerHeight, true); } catch (e) {}
+});
+
 let renderer, scene, camera, envGroup, contentGroup, starPoints, starMat, starGeo;
 let planets = [];
 let auroraGrp = null, petalGrp = null, dustPoints = null;
@@ -752,7 +760,7 @@ function setHover(data){ if(hovered===data) return; hovered=data; }
 /* ═══ 尺寸 ═══ */
 function resize(){
   if(!renderer) return;                       // 子页未创建渲染器：直接跳过，避免空上下文崩溃
-  DPR=Math.min(devicePixelRatio||1, MOBILE?1.5:2.5);   // 移动端封 1.5：星系是柔光晕，降分辨率几乎无感、GPU 负载砍半
+  DPR=Math.min(devicePixelRatio||1, MOBILE?1:1.5);   // 移动端封 1、桌面封 1.5：星系是柔光晕，降分辨率几乎无感、GPU 负载砍半
   W=innerWidth; H=innerHeight;
   renderer.setPixelRatio(DPR); renderer.setSize(W,H,true);
   camera.fov=MOBILE?58:48;
